@@ -88,6 +88,24 @@ The full scaffold, including the files each owner still needs to create, is in
 - [Task splitter](docs/task-splitter.md)
 - [Scaffold](docs/scaffold.md)
 
+## Deploying the web app
+
+The app is a static Vite build; no environment variables are required.
+
+### Vercel
+
+1. Import this repository into Vercel.
+2. Either set the project **Root Directory** to `web`, or keep it at the repository root.
+   Both paths are configured: `web/vercel.json` covers a `web` root, and the root
+   `vercel.json` covers the monorepo layout.
+3. Framework preset: **Vite**.
+4. Build command: `npm run build` (or `cd web && npm run build` from the root).
+5. Output directory: `dist` (or `web/dist` from the root).
+
+Node 22 is pinned in `.nvmrc` and `web/package.json`. The app reads
+`web/public/data/firewatch.json.gz` at runtime, and Vercel serves it as a static
+asset. `VITE_BASE` is only needed for GitHub Pages project sites; Vercel uses `/`.
+
 ## Data and attribution
 
 Hotspot data come from NASA FIRMS (Fire Information for Resource Management

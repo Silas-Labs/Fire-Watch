@@ -45,4 +45,4 @@ interface MonthlyObservation {
 - **Domain B (Science / Silas):**
   - Harmonization calibration coefficients ($k_{dry}, k_{wet}$) and validation metrics for the info cards.
 - **Domain A (Data Engineering / Favor):**
-  - Capped raw detection files `web/public/data/detections/YYYY.json.gz` loaded on demand for raw CSV export.
+  - Publishes the harmonized `web/public/data/firewatch.json.gz` payload consumed by the web app.
