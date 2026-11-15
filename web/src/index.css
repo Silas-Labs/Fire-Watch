@@ -114,7 +114,7 @@ p {
 .app-header {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
 }
@@ -137,6 +137,7 @@ p {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
+  justify-content: flex-end;
   gap: 12px;
 }
 
@@ -1036,22 +1037,6 @@ p {
   }
 
   .range-trigger {
-    width: 100%;
-  }
-
-  .filter-bar > .download-menu {
-    width: 100%;
-    margin-left: 0;
-  }
-
-  .download-trigger {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .download-menu-list {
-    left: 0;
-    right: auto;
     width: 100%;
   }
 

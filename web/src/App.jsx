@@ -152,6 +152,12 @@ function App() {
             {lastMonth.slice(0, 4)}, MODIS and VIIRS on one scale
           </p>
         </div>
+
+        <DownloadMenu
+          onDownloadCsv={handleExportCsv}
+          onDownloadPng={handleExportPng}
+          csvDisabled={cellRows.length === 0}
+        />
       </header>
 
       {error && (
@@ -205,12 +211,6 @@ function App() {
               end={selection.dateRange.end}
               onChange={handleRangeChange}
               source={selection.source}
-            />
-
-            <DownloadMenu
-              onDownloadCsv={handleExportCsv}
-              onDownloadPng={handleExportPng}
-              csvDisabled={cellRows.length === 0}
             />
           </div>
 
