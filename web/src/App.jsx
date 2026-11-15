@@ -90,9 +90,6 @@ function App() {
     selection.dateRange.end,
   ])
 
-  const firstMonth = months[0] ?? ''
-  const lastMonth = months[months.length - 1] ?? ''
-
   function handleExportCsv() {
     if (cellRows.length === 0) return
 
@@ -147,10 +144,7 @@ function App() {
       <header className="app-header">
         <div className="app-title">
           <h1>FireWatch</h1>
-          <p>
-            Tanzania burning calendar, {firstMonth.slice(0, 4)} to{' '}
-            {lastMonth.slice(0, 4)}, MODIS and VIIRS on one scale
-          </p>
+          <hr />
         </div>
 
         {dataset && !loading && !error && (
@@ -221,15 +215,11 @@ function App() {
               <div className="panel-heading panel-heading-row">
                 <div>
                   <h2>Fire activity map</h2>
+
                   <p>
-                    Hotspots for the selected period, shaded from low to high
-                    relative to this selection. Pan and zoom inside the study
-                    area.
+                    Hotspots for the selected period.
                   </p>
                 </div>
-                <span className="map-badge">
-                  {selectedCells.length.toLocaleString()} cells
-                </span>
               </div>
 
               <div className="map-canvas">
