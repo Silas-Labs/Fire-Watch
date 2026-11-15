@@ -6,7 +6,6 @@ import {
   SOURCES,
   aggregateCellRowsToMonthlySeries,
   filterSeriesByDateRange,
-  formatHotspotValue,
 } from './calendar/dataHelpers.js'
 import { CalendarHeatmap } from './calendar/CalendarHeatmap.jsx'
 import { ComparisonChart } from './charts/ComparisonChart.jsx'
@@ -22,10 +21,6 @@ import {
   createPresentationCalendarPng,
   downloadDataUrl,
 } from './export/calendarPng.js'
-
-function formatValidationMetric(value, digits = 3) {
-  return Number.isFinite(value) ? value.toFixed(digits) : '—'
-}
 
 function App() {
   const {
@@ -94,12 +89,6 @@ function App() {
     selection.dateRange.start,
     selection.dateRange.end,
   ])
-
-  const validation = dataset?.meta?.validation ?? {}
-  const calibration = dataset?.meta?.calibration ?? {}
-  const validationPending =
-    validation.status === 'placeholder' ||
-    calibration.status === 'placeholder'
 
   const firstMonth = months[0] ?? ''
   const lastMonth = months[months.length - 1] ?? ''
@@ -264,71 +253,6 @@ function App() {
               highlightedMonth={highlightedMonth}
               onSelectAnomaly={toggleHighlightedMonth}
             />
-
-            <section className="panel validation-panel">
-              <div className="panel-heading panel-heading-row">
-                <div>
-                  <h2>Harmonization validation</h2>
-                  <p>
-                    Agreement between the harmonized series and held-out
-                    observations.
-                  </p>
-                </div>
-                <span className="panel-badge">
-                  {validationPending ? 'Calibration pending' : 'Validated'}
-                </span>
-              </div>
-
-              <div className="validation-grid">
-                <article>
-                  <span>Pearson correlation (r)</span>
-                  <strong>{formatValidationMetric(validation.pearson)}</strong>
-                  <small>Linear agreement between sensors</small>
-                </article>
-
-                <article>
-                  <span>Spearman rank (ρ)</span>
-                  <strong>{formatValidationMetric(validation.spearman)}</strong>
-                  <small>Rank-order agreement</small>
-                </article>
-
-                <article>
-                  <span>Mean absolute error</span>
-                  <strong>{formatValidationMetric(validation.mae)}</strong>
-                  <small>Hotspots per grid cell-month</small>
-                </article>
-
-                <article>
-                  <span>Annual total error</span>
-                  <strong>
-                    {Number.isFinite(validation.annual_total_relative_error)
-                      ? `${(
-                          validation.annual_total_relative_error * 100
-                        ).toFixed(1)}%`
-                      : '—'}
-                  </strong>
-                  <small>Relative error on annual totals</small>
-                </article>
-              </div>
-
-              <p className="validation-note">
-                {validationPending
-                  ? 'The bundled dataset is a placeholder export. Validation figures will populate when the pipeline calibration run replaces it.'
-                  : `Training period ${calibration.train ?? '—'} · test period ${calibration.test ?? '—'}.`}
-                {Number.isFinite(validation.bias) && (
-                  <>
-                    {' '}
-                    Bias:{' '}
-                    {formatHotspotValue(validation.bias, selection.source)}
-                  </>
-                )}
-              </p>
-            </section>
-
-            <p className="app-note">
-              Hotspots are thermal detections, not fire boundaries. A day
-              with no detection can still hold a fire the satellites missed.
-            </p>
         </div>
       )}
     </main>

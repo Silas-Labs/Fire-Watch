@@ -458,7 +458,6 @@ p {
   gap: 16px;
 }
 
-.panel-badge,
 .map-badge {
   flex: 0 0 auto;
   color: var(--muted);
@@ -932,65 +931,6 @@ p {
 .download-menu-list small {
   color: var(--muted);
   font-size: 12px;
-}
-
-/* =========================================
-   VALIDATION
-   ========================================= */
-
-.validation-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.validation-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 12px;
-}
-
-.validation-grid article {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding: 14px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface-sunken);
-}
-
-.validation-grid article span {
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.validation-grid article strong {
-  font-family: inherit;
-  color: var(--accent-bright);
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: -0.4px;
-}
-
-.validation-grid article small {
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.45;
-}
-
-.validation-note {
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.55;
-}
-
-.app-note {
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.55;
 }
 
 /* =========================================
