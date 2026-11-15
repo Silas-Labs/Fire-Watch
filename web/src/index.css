@@ -140,10 +140,6 @@ p {
   gap: 12px;
 }
 
-.filter-bar > .btn-primary {
-  margin-left: auto;
-}
-
 .segmented {
   display: inline-flex;
   overflow: hidden;
@@ -468,81 +464,6 @@ p {
   color: var(--muted);
   font-size: 13px;
   white-space: nowrap;
-}
-
-/* =========================================
-   KPI CARDS
-   ========================================= */
-
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
-}
-
-.kpi-card {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-height: 136px;
-  padding: 18px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-}
-
-.kpi-label {
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.kpi-value-row {
-  display: flex;
-  align-items: baseline;
-  gap: 7px;
-}
-
-.kpi-value {
-  font-family: inherit;
-  color: var(--text);
-  font-size: 32px;
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.5px;
-  font-variant-numeric: tabular-nums;
-}
-
-.kpi-unit {
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.kpi-foot {
-  margin-top: auto;
-  padding-top: 10px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 10px;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.45;
-}
-
-.kpi-foot strong {
-  color: var(--text);
-  font-weight: 600;
-}
-
-.kpi-trend-high {
-  color: var(--accent-bright);
-  font-weight: 600;
-}
-
-.kpi-trend-low {
-  color: var(--cool);
-  font-weight: 600;
 }
 
 /* =========================================
@@ -949,148 +870,68 @@ p {
 }
 
 /* =========================================
-   EXPORT PANEL
+   DOWNLOAD MENU
    ========================================= */
 
-.export-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
+.download-menu {
+  position: relative;
+  margin-left: auto;
 }
 
-.export-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface-sunken);
-}
-
-.export-card-top {
-  display: flex;
+.download-trigger {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
 }
 
-.export-title {
-  color: var(--text);
-  font-size: 15px;
-  font-weight: 600;
+.download-caret {
+  font-size: 11px;
 }
 
-.export-badge {
-  color: var(--muted);
-  font-size: 12px;
+.download-menu-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 1000;
+  width: 240px;
+  padding: 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-shadow: 0 12px 32px rgba(31, 35, 32, 0.14);
 }
 
-.export-card p {
-  margin-top: 4px;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.export-card .btn {
+.download-menu-list button {
   width: 100%;
-  justify-content: center;
-}
-
-.export-success {
-  padding: 9px 12px;
-  border: 1px solid rgba(31, 122, 77, 0.35);
-  border-radius: 6px;
-  background: rgba(31, 122, 77, 0.08);
-  color: var(--success);
-  font-size: 13px;
-  text-align: center;
-}
-
-/* Modal */
-
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  background: rgba(31, 35, 32, 0.35);
-}
-
-.modal {
-  width: 100%;
-  max-width: 520px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 24px;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  background: var(--surface);
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
 }
 
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+.download-menu-list button:hover:not(:disabled) {
+  background: var(--surface-sunken);
 }
 
-.modal-header h3 {
-  font-size: 18px;
+.download-menu-list button:disabled {
+  color: var(--subtle);
+  cursor: not-allowed;
+}
+
+.download-menu-list span {
+  font-size: 14px;
   font-weight: 600;
 }
 
-.modal-close {
-  padding: 4px 8px;
-  border: 0;
-  background: transparent;
+.download-menu-list small {
   color: var(--muted);
-  font-size: 18px;
-  line-height: 1;
-}
-
-.modal-close:hover {
-  color: var(--text);
-}
-
-.modal-warning {
-  padding: 12px;
-  border: 1px solid rgba(184, 74, 31, 0.3);
-  border-radius: var(--radius-sm);
-  background: var(--accent-soft);
-  color: var(--accent-bright);
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.modal-muted {
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.modal-error {
-  padding: 12px;
-  border: 1px solid rgba(180, 35, 24, 0.3);
-  border-radius: var(--radius-sm);
-  background: rgba(180, 35, 24, 0.07);
-  color: var(--danger);
-  font-size: 13px;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.modal-actions .btn {
-  flex: 1;
+  font-size: 12px;
 }
 
 /* =========================================
@@ -1258,18 +1099,20 @@ p {
     width: 100%;
   }
 
-  .filter-bar > .btn-primary {
+  .filter-bar > .download-menu {
     width: 100%;
     margin-left: 0;
   }
 
-  .kpi-grid {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
+  .download-trigger {
+    width: 100%;
+    justify-content: center;
   }
 
-  .kpi-card {
-    min-height: 0;
+  .download-menu-list {
+    left: 0;
+    right: auto;
+    width: 100%;
   }
 
   .map-canvas {
@@ -1292,10 +1135,6 @@ p {
     align-items: flex-start;
     flex-direction: column;
     gap: 14px;
-  }
-
-  .modal-actions {
-    flex-direction: column;
   }
 }
 

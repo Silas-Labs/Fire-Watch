@@ -1,4 +1,4 @@
-import { computeMedian, formatMonthName } from '../kpis/kpiCalculations.js';
+import { computeMedian, formatMonthName } from '../stats.js';
 import { getValueForSource, SOURCES } from '../calendar/dataHelpers.js';
 
 /**

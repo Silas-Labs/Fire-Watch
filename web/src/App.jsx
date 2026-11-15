@@ -11,9 +11,8 @@ import {
 import { CalendarHeatmap } from './calendar/CalendarHeatmap.jsx'
 import { ComparisonChart } from './charts/ComparisonChart.jsx'
 import { MonthRangeControl } from './controls/MonthRangeControl.jsx'
-import { KpiCards } from './kpis/KpiCards.jsx'
 import { AnomaliesList } from './anomalies/AnomaliesList.jsx'
-import { ExportPanel } from './export/ExportPanel.jsx'
+import { DownloadMenu } from './export/DownloadMenu.jsx'
 import {
   generateAggregateCsv,
   getAggregateCsvFilename,
@@ -96,15 +95,6 @@ function App() {
     selection.dateRange.end,
   ])
 
-  const exportBbox = selection.aoi
-    ? [
-        selection.aoi.west,
-        selection.aoi.south,
-        selection.aoi.east,
-        selection.aoi.north,
-      ]
-    : null
-
   const validation = dataset?.meta?.validation ?? {}
   const calibration = dataset?.meta?.calibration ?? {}
   const validationPending =
@@ -168,6 +158,10 @@ function App() {
       <header className="app-header">
         <div className="app-title">
           <h1>FireWatch</h1>
+          <p>
+            Tanzania burning calendar, {firstMonth.slice(0, 4)} to{' '}
+            {lastMonth.slice(0, 4)}, MODIS and VIIRS on one scale
+          </p>
         </div>
       </header>
 
@@ -224,21 +218,12 @@ function App() {
               source={selection.source}
             />
 
-            <button
-              className="btn btn-primary"
-              type="button"
-              onClick={handleExportCsv}
-              disabled={cellRows.length === 0}
-            >
-              Download CSV
-            </button>
+            <DownloadMenu
+              onDownloadCsv={handleExportCsv}
+              onDownloadPng={handleExportPng}
+              csvDisabled={cellRows.length === 0}
+            />
           </div>
-
-          <KpiCards
-            displayedSeries={displayedSeries}
-            fullSeries={fullSeries}
-            source={selection.source}
-          />
 
           <div className="dashboard-grid">
             <section className="panel map-panel">
@@ -278,14 +263,6 @@ function App() {
               source={selection.source}
               highlightedMonth={highlightedMonth}
               onSelectAnomaly={toggleHighlightedMonth}
-            />
-
-            <ExportPanel
-              cellRows={cellRows}
-              startMonth={selection.dateRange.start}
-              endMonth={selection.dateRange.end}
-              bbox={exportBbox}
-              onExportPng={handleExportPng}
             />
 
             <section className="panel validation-panel">
