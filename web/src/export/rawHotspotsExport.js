@@ -1,4 +1,4 @@
-import { escapeCsvField, downloadCsvFile } from './aggregateCsv.js';
+import { escapeCsvField } from './aggregateCsv.js';
 import { isCellInBbox } from '../store/dataStore.js';
 
 const BASE_URL = import.meta.env?.BASE_URL ?? '/';

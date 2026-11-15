@@ -1,19 +1,14 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import * as echarts from 'echarts';
 import {
   SOURCES,
   getValueForSource,
   formatHotspotValue,
 } from '../calendar/dataHelpers.js';
+import { FIRE_RAMP } from '../theme/colors.js';
 
 /**
- * Sensor Comparison Line Chart (Domain D - Peter)
- * 
- * Plots Raw MODIS, Raw VIIRS, and Harmonized (MODIS-equivalent) time-series.
- * Demonstrates sensor mismatch and how the harmonized series bridges the records.
- * 
- * Props:
- * - series: Array of { month: 'YYYY-MM', harmonized, modis_hotspots, viirs_hotspots, ... }
+ * Plots raw MODIS, raw VIIRS and the harmonized continuation series.
  */
 export function ComparisonChart({ series = [] }) {
   const chartContainerRef = useRef(null);
@@ -85,22 +80,23 @@ export function ComparisonChart({ series = [] }) {
     const option = {
       backgroundColor: 'transparent',
       textStyle: {
-        fontFamily: "'IBM Plex Sans', 'Segoe UI', sans-serif",
+        fontFamily:
+          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       },
       tooltip: {
         trigger: 'axis',
-        backgroundColor: '#0d1519',
-        borderColor: '#3a4a50',
+        backgroundColor: '#ffffff',
+        borderColor: '#ddd6cc',
         borderWidth: 1,
-        textStyle: { color: '#e6ecee', fontSize: 13 },
+        textStyle: { color: '#1f2320', fontSize: 13 },
         axisPointer: {
           type: 'cross',
-          lineStyle: { color: '#ed9b45', type: 'dashed' },
+          lineStyle: { color: '#b84a1f', type: 'dashed' },
         },
         formatter: (params) => {
           if (!params || params.length === 0) return '';
           const monthStr = params[0].axisValue;
-          let html = `<div style="font-weight: 600; margin-bottom: 6px; border-bottom: 1px solid #2b393e; padding-bottom: 4px;">Month: ${monthStr}</div>`;
+          let html = `<div style="font-weight: 600; margin-bottom: 6px; border-bottom: 1px solid #ddd6cc; padding-bottom: 4px;">Month: ${monthStr}</div>`;
           
           params.forEach((p) => {
             const rawVal = p.value === '-' ? null : p.value;
@@ -109,9 +105,9 @@ export function ComparisonChart({ series = [] }) {
               <div style="display: flex; justify-content: space-between; gap: 1rem; align-items: center; margin: 3px 0;">
                 <span style="display: flex; align-items: center; gap: 6px;">
                   <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${p.color};"></span>
-                  <span style="color: #9aa9ad;">${p.seriesName}:</span>
+                  <span style="color: #5f6864;">${p.seriesName}:</span>
                 </span>
-                <strong style="color: #e6ecee;">${displayVal}</strong>
+                <strong style="color: #1f2320;">${displayVal}</strong>
               </div>
             `;
           });
@@ -121,7 +117,7 @@ export function ComparisonChart({ series = [] }) {
       legend: {
         data: ['Harmonized (MODIS-equiv)', 'Raw MODIS', 'Raw VIIRS'],
         top: 8,
-        textStyle: { color: '#9aa9ad', fontSize: 12 },
+        textStyle: { color: '#5f6864', fontSize: 12 },
         selectedMode: true,
       },
       grid: {
@@ -142,50 +138,51 @@ export function ComparisonChart({ series = [] }) {
           end: 100,
           bottom: 10,
           height: 20,
-          borderColor: '#2b393e',
-          textStyle: { color: '#9aa9ad' },
+          borderColor: '#ddd6cc',
+          backgroundColor: '#fbfaf8',
+          fillerColor: 'rgba(184,74,31,0.10)',
+          handleStyle: { color: '#ffffff', borderColor: '#b84a1f' },
+          moveHandleStyle: { color: '#b84a1f', opacity: 0.45 },
+          textStyle: { color: '#5f6864' },
         },
       ],
       xAxis: {
         type: 'category',
         data: months,
-        axisLine: { lineStyle: { color: '#2b393e' } },
+        axisLine: { lineStyle: { color: '#c7bfb2' } },
         axisLabel: {
-          color: '#9aa9ad',
+          color: '#5f6864',
           fontSize: 11,
-          formatter: (val) => {
-            // If January, highlight year
-            if (val && val.endsWith('-01')) return val.slice(0, 4);
-            return val ? val.slice(5) : '';
-          },
+          interval: (index, value) => value.endsWith('-01'),
+          formatter: (value) => (value ? value.slice(0, 4) : ''),
         },
       },
       yAxis: {
         type: 'value',
         name: 'Hotspots',
-        nameTextStyle: { color: '#9aa9ad', fontSize: 11 },
-        axisLine: { lineStyle: { color: '#2b393e' } },
-        splitLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.05)' } },
-        axisLabel: { color: '#9aa9ad', fontSize: 11 },
+        nameTextStyle: { color: '#5f6864', fontSize: 11 },
+        axisLine: { lineStyle: { color: '#c7bfb2' } },
+        splitLine: { lineStyle: { color: 'rgba(31, 35, 32, 0.08)' } },
+        axisLabel: { color: '#5f6864', fontSize: 11 },
       },
       series: [
         {
           name: 'Harmonized (MODIS-equiv)',
           type: 'line',
           data: harmonizedData,
-          connectNulls: false, // PRESERVE GAPS FOR MISSING OBSERVATIONS
+          connectNulls: false,
           smooth: true,
           symbol: 'circle',
           symbolSize: 4,
           lineStyle: {
-            color: '#ed9b45',
+            color: FIRE_RAMP[4],
             width: 2.5,
           },
-          itemStyle: { color: '#ed9b45' },
+          itemStyle: { color: FIRE_RAMP[4] },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: 'rgba(237, 155, 69, 0.18)' },
-              { offset: 1, color: 'rgba(237, 155, 69, 0.0)' },
+              { offset: 0, color: 'rgba(230, 85, 13, 0.16)' },
+              { offset: 1, color: 'rgba(230, 85, 13, 0.0)' },
             ]),
           },
         },
@@ -198,26 +195,26 @@ export function ComparisonChart({ series = [] }) {
           symbol: 'triangle',
           symbolSize: 5,
           lineStyle: {
-            color: '#8fb0c4',
+            color: '#3b6f8f',
             width: 1.8,
             type: 'dashed',
           },
-          itemStyle: { color: '#8fb0c4' },
+          itemStyle: { color: '#3b6f8f' },
         },
         {
           name: 'Raw VIIRS',
           type: 'line',
           data: viirsData,
-          connectNulls: false, // Critical: preserves pre-2012 gap
+          connectNulls: false,
           smooth: false,
           symbol: 'diamond',
           symbolSize: 5,
           lineStyle: {
-            color: '#c9a88b',
+            color: '#8a6a4f',
             width: 1.8,
             type: 'dotted',
           },
-          itemStyle: { color: '#c9a88b' },
+          itemStyle: { color: '#8a6a4f' },
         },
       ],
     };

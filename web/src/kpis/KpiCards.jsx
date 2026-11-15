@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import {
   calculateCurrentMonthKpi,
   calculateBusiestMonthKpi,
@@ -84,7 +84,7 @@ export function KpiCards({
         </div>
       </article>
 
-      <article className="kpi-card is-accent">
+      <article className="kpi-card">
         <span className="kpi-label">Busiest month in selection</span>
 
         <div className="kpi-value-row">
@@ -102,7 +102,7 @@ export function KpiCards({
         </div>
       </article>
 
-      <article className="kpi-card is-accent">
+      <article className="kpi-card">
         <span className="kpi-label">Busiest year in selection</span>
 
         <div className="kpi-value-row">

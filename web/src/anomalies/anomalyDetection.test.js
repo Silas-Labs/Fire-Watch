@@ -4,7 +4,6 @@ import {
   computeMAD,
   detectAnomalies,
 } from './anomalyDetection.js';
-import { SOURCES } from '../calendar/dataHelpers.js';
 
 describe('anomalyDetection', () => {
   describe('computeIQR', () => {

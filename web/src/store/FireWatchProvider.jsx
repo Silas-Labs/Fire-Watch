@@ -109,17 +109,28 @@ export function FireWatchProvider({ children }) {
   }, [])
 
   const resetAOI = useCallback(() => {
-  if (!dataset) return
+    if (!dataset) return
 
-  const initialSelection = getInitialSelection(dataset)
+    const initialSelection = getInitialSelection(dataset)
 
-  setSelection((current) => ({
-    ...current,
-    aoi: initialSelection.aoi,
-  }))
-}, [dataset])
+    setSelection((current) => ({
+      ...current,
+      aoi: initialSelection.aoi,
+    }))
+  }, [dataset])
 
   const setDateRange = useCallback((dateRange) => {
+    if (
+      !dateRange ||
+      typeof dateRange.start !== 'string' ||
+      typeof dateRange.end !== 'string' ||
+      !dateRange.start ||
+      !dateRange.end ||
+      dateRange.start > dateRange.end
+    ) {
+      return
+    }
+
     setSelection((current) => ({
       ...current,
       dateRange,

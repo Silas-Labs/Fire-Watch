@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   generateAggregateCsv,
   getAggregateCsvFilename,
@@ -116,8 +116,7 @@ export function ExportPanel({
         <div>
           <h2>Data downloads</h2>
           <p>
-            Export the active selection as harmonized tabular data or a
-            presentation-ready calendar image.
+            Export the current selection as tabular data or a calendar image.
           </p>
         </div>
       </div>
@@ -127,7 +126,6 @@ export function ExportPanel({
           <div>
             <div className="export-card-top">
               <span className="export-title">Aggregate CSV</span>
-              <span className="export-badge">Required</span>
             </div>
             <p>
               Harmonized cell-month table with MODIS, VIIRS and calibrated
@@ -152,10 +150,10 @@ export function ExportPanel({
           <div>
             <div className="export-card-top">
               <span className="export-title">Calendar image</span>
-              <span className="export-badge">PNG</span>
             </div>
             <p>
-              High-resolution snapshot of the burning calendar heatmap.
+              Snapshot of the burning calendar for the selected area and
+              period.
             </p>
           </div>
 
@@ -172,7 +170,7 @@ export function ExportPanel({
           <div>
             <div className="export-card-top">
               <span className="export-title">Raw detections CSV</span>
-              <span className="export-badge">Capped at 50k</span>
+              <span className="export-badge">50,000 row cap</span>
             </div>
             <p>
               Quality-filtered FIRMS detections for the selected dates and

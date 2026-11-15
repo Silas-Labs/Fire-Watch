@@ -10,6 +10,7 @@ import {
 } from './calendar/dataHelpers.js'
 import { CalendarHeatmap } from './calendar/CalendarHeatmap.jsx'
 import { ComparisonChart } from './charts/ComparisonChart.jsx'
+import { MonthRangeControl } from './controls/MonthRangeControl.jsx'
 import { KpiCards } from './kpis/KpiCards.jsx'
 import { AnomaliesList } from './anomalies/AnomaliesList.jsx'
 import { ExportPanel } from './export/ExportPanel.jsx'
@@ -158,24 +159,8 @@ function App() {
     setHighlightedMonth((current) => (current === month ? null : month))
   }
 
-  function handleStartChange(start) {
-    setDateRange({
-      start,
-      end:
-        start > selection.dateRange.end
-          ? start
-          : selection.dateRange.end,
-    })
-  }
-
-  function handleEndChange(end) {
-    setDateRange({
-      start:
-        end < selection.dateRange.start
-          ? end
-          : selection.dateRange.start,
-      end,
-    })
+  function handleRangeChange(range) {
+    setDateRange(range)
   }
 
   return (
@@ -208,33 +193,13 @@ function App() {
             ))}
           </div>
 
-          <label className="field">
-            <span>From</span>
-            <select
-              value={selection.dateRange.start}
-              onChange={(event) => handleStartChange(event.target.value)}
-            >
-              {months.map((month) => (
-                <option key={month} value={month}>
-                  {month}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="field">
-            <span>To</span>
-            <select
-              value={selection.dateRange.end}
-              onChange={(event) => handleEndChange(event.target.value)}
-            >
-              {months.map((month) => (
-                <option key={month} value={month}>
-                  {month}
-                </option>
-              ))}
-            </select>
-          </label>
+          <MonthRangeControl
+            months={months}
+            start={selection.dateRange.start}
+            end={selection.dateRange.end}
+            onChange={handleRangeChange}
+            source={selection.source}
+          />
 
           <button
             className="btn btn-primary"
@@ -250,12 +215,12 @@ function App() {
       {error && (
         <section className="feedback-panel error-panel" role="alert">
           <div>
-            <h2>Dataset unavailable</h2>
+            <h2>Fire data could not load</h2>
             <p>{error}</p>
           </div>
 
           <button className="btn btn-secondary" type="button" onClick={reload}>
-            Retry connection
+            Try again
           </button>
         </section>
       )}
@@ -265,11 +230,8 @@ function App() {
           <span className="loader" />
 
           <div>
-            <h2>Preparing FireWatch</h2>
-            <p>
-              Loading and validating the historical fire observation
-              dataset.
-            </p>
+            <h2>Loading fire data</h2>
+            <p>Checking the harmonized hotspot record.</p>
           </div>
         </section>
       )}
@@ -282,16 +244,15 @@ function App() {
             source={selection.source}
           />
 
-          <div className="insight-grid">
+          <div className="dashboard-grid">
             <section className="panel map-panel">
               <div className="panel-heading panel-heading-row">
                 <div>
                   <h2>Fire activity map</h2>
                   <p>
-                    Satellite detections for{' '}
-                    {selection.dateRange.start} to {selection.dateRange.end}
-                    , coloured by relative intensity. Pan and zoom inside the
-                    study area.
+                    Hotspots for the selected period, shaded from low to high
+                    relative to this selection. Pan and zoom inside the study
+                    area.
                   </p>
                 </div>
                 <span className="map-badge">
@@ -301,12 +262,6 @@ function App() {
 
               <div className="map-canvas">
                 <FireMap />
-              </div>
-
-              <div className="map-status">
-                <span>{selection.source.toUpperCase()}</span>
-                <span>{selection.dateRange.start} — {selection.dateRange.end}</span>
-                <span>Tanzania study area</span>
               </div>
             </section>
 
@@ -342,8 +297,8 @@ function App() {
                 <div>
                   <h2>Harmonization validation</h2>
                   <p>
-                    Calibration metadata reported by the data pipeline.
-                    Held-out years are used where available.
+                    Agreement between the harmonized series and held-out
+                    observations.
                   </p>
                 </div>
                 <span className="panel-badge">

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo, forwardRef, useImperativeHandle } from 'react';
+import { useEffect, useRef, useState, useMemo, forwardRef, useImperativeHandle } from 'react';
 import * as echarts from 'echarts';
 import {
   SOURCES,
@@ -6,15 +6,11 @@ import {
   getValueForSource,
   formatHotspotValue,
 } from './dataHelpers.js';
+import { FIRE_RAMP } from '../theme/colors.js';
 
 const MONTH_NAMES = [
   'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-];
-
-// Ember ramp: cool ember to intense fire, matching the map palette.
-const HEAT_COLORS = [
-  '#3a2a1c', '#7a4322', '#b65a25', '#f0872e', '#ffc766',
 ];
 
 /**
@@ -143,14 +139,15 @@ export const CalendarHeatmap = forwardRef(function CalendarHeatmap(
     const option = {
       backgroundColor: 'transparent',
       textStyle: {
-        fontFamily: "'IBM Plex Sans', 'Segoe UI', sans-serif",
+        fontFamily:
+          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       },
       tooltip: {
         position: 'top',
-        backgroundColor: '#0d1519',
-        borderColor: '#3a4a50',
+        backgroundColor: '#ffffff',
+        borderColor: '#ddd6cc',
         borderWidth: 1,
-        textStyle: { color: '#e6ecee', fontSize: 13 },
+        textStyle: { color: '#1f2320', fontSize: 13 },
         formatter: (params) => {
           const [mIdx, yIdx, val, monthKey] = params.data;
           const monthName = MONTH_NAMES[mIdx];
@@ -160,90 +157,82 @@ export const CalendarHeatmap = forwardRef(function CalendarHeatmap(
 
           let statusLine = '';
           if (val === null) {
-            statusLine = `<div style="color: #9aa9ad; font-style: italic;">No observation / sensor unavailable</div>`;
+            statusLine = `<div style="color: #5f6864; font-style: italic;">No observation / sensor unavailable</div>`;
           } else if (val === 0) {
-            statusLine = `<div style="color: #8fb0c4;">True zero (no fire detected)</div>`;
+            statusLine = `<div style="color: #3b6f8f;">True zero (no fire detected)</div>`;
           }
 
           return `
             <div style="font-weight: 600; margin-bottom: 4px;">${monthName} ${year} (${monthKey})</div>
-            <div style="color: #ffb45e; font-size: 14px; font-weight: 700;">
-              ${formattedVal} <span style="font-size: 11px; font-weight: normal; color: #9aa9ad;">${activeMeta.unit}</span>
+            <div style="color: #b84a1f; font-size: 14px; font-weight: 700;">
+              ${formattedVal} <span style="font-size: 11px; font-weight: normal; color: #5f6864;">${activeMeta.unit}</span>
             </div>
             ${statusLine}
-            ${isHighlighted ? '<div style="color: #ffb45e; margin-top: 4px; font-weight: 600;">Flagged unusual period</div>' : ''}
+            ${isHighlighted ? '<div style="color: #b84a1f; margin-top: 4px; font-weight: 600;">Flagged unusual period</div>' : ''}
           `;
         },
       },
       grid: {
         top: 40,
-        bottom: 60,
-        left: 70,
+        bottom: 86,
+        left: 68,
         right: 20,
       },
       xAxis: {
         type: 'category',
         data: MONTH_NAMES,
-        splitArea: { show: true, areaStyle: { color: ['rgba(255,255,255,0.02)', 'transparent'] } },
-        axisLabel: { color: '#9aa9ad', fontSize: 12 },
-        axisLine: { lineStyle: { color: '#2b393e' } },
+        splitArea: { show: true, areaStyle: { color: ['rgba(31,35,32,0.02)', 'transparent'] } },
+        axisLabel: { color: '#5f6864', fontSize: 12 },
+        axisLine: { lineStyle: { color: '#c7bfb2' } },
       },
       yAxis: {
         type: 'category',
         data: years.map(String),
-        splitArea: { show: true },
-        axisLabel: { color: '#9aa9ad', fontSize: 12 },
-        axisLine: { lineStyle: { color: '#2b393e' } },
+        splitArea: { show: false },
+        axisLabel: { color: '#5f6864', fontSize: 12 },
+        axisLine: { lineStyle: { color: '#c7bfb2' } },
       },
       visualMap: {
         min: 0,
         max: maxVal,
+        dimension: 2,
         calculable: true,
         orient: 'horizontal',
         left: 'center',
-        bottom: 5,
+        bottom: 8,
         inRange: {
-          color: HEAT_COLORS,
+          color: FIRE_RAMP,
         },
-        textStyle: { color: '#9aa9ad', fontSize: 11 },
+        textStyle: { color: '#5f6864', fontSize: 11 },
         formatter: (val) => Math.round(val).toLocaleString(),
       },
       series: [
         {
           name: activeMeta.label,
           type: 'heatmap',
-          data: matrixData.map(([mIdx, yIdx, val, monthKey]) => {
-            const isHighlighted = monthKey === highlightedMonth;
-            if (val === null) {
-              return {
-                value: [mIdx, yIdx, '-'],
-                itemStyle: {
-                  color: '#0d1519',
-                  borderColor: isHighlighted ? '#ed9b45' : '#2b393e',
-                  borderWidth: isHighlighted ? 2 : 1,
-                  borderType: 'dashed',
-                },
-              };
-            }
-            if (isHighlighted) {
-              return {
-                value: [mIdx, yIdx, val, monthKey],
-                itemStyle: {
-                  borderColor: '#ffb45e',
-                  borderWidth: 3,
-                },
-              };
-            }
-            return [mIdx, yIdx, val, monthKey];
-          }),
+          data: matrixData
+            .filter(([, , val]) => val !== null)
+            .map(([mIdx, yIdx, val, monthKey]) => {
+              const isHighlighted = monthKey === highlightedMonth;
+              if (isHighlighted) {
+                return {
+                  value: [mIdx, yIdx, val, monthKey],
+                  itemStyle: {
+                    borderColor: '#b84a1f',
+                    borderWidth: 3,
+                  },
+                };
+              }
+              return [mIdx, yIdx, val, monthKey];
+            }),
           label: { show: false },
           itemStyle: {
-            borderColor: '#121b1f',
+            borderColor: '#ffffff',
             borderWidth: 1,
           },
           emphasis: {
             itemStyle: {
-              borderColor: '#ffb45e',
+              borderColor: '#b84a1f',
               borderWidth: 2,
             },
           },
@@ -303,6 +292,10 @@ export const CalendarHeatmap = forwardRef(function CalendarHeatmap(
           minHeight: '260px',
         }}
       />
+
+      <p className="chart-footnote">
+        Blank cells mark months without an observation.
+      </p>
 
       {!hasData && (
         <div className="chart-empty" role="status">
