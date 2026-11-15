@@ -1,4 +1,4 @@
-data/
-pipeline/
-docs/
-.github/
+/data/
+/pipeline/
+/docs/
+/.github/
