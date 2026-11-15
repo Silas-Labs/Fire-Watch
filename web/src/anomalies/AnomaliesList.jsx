@@ -64,9 +64,6 @@ export function AnomaliesList({
           {anomalies.map((item) => {
             const isSelected = highlightedMonth === item.month;
             const isHigh = item.type === 'high';
-            const observedLabel = formatHotspotValue(item.value, source);
-            const medianLabel = formatHotspotValue(item.median, source);
-            const scoreLabel = item.zScore !== null ? item.zScore : 'N/A';
 
             return (
               <div
@@ -74,7 +71,6 @@ export function AnomaliesList({
                 role="button"
                 tabIndex={0}
                 aria-pressed={isSelected}
-                aria-label={`${item.monthLabel}: ${isHigh ? 'High' : 'Low'} anomaly. Observed ${observedLabel} ${meta.shortUnit}. Median ${medianLabel}. Score z = ${scoreLabel}. ${item.method} · ${item.baselineCount} yrs.`}
                 onClick={() => onSelectAnomaly && onSelectAnomaly(item.month)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
