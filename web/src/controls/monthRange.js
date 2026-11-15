@@ -95,6 +95,33 @@ export function isValidRange(start, end, months) {
   if (!MONTH_PATTERN.test(start) || !MONTH_PATTERN.test(end)) return false
   if (start > end) return false
 
-  return sortedMonths(months).includes(start) &&
-    sortedMonths(months).includes(end)
+  const available = new Set(sortedMonths(months))
+
+  return available.has(start) && available.has(end)
+}
+
+/**
+ * Advance a draft range after the user clicks a month in the calendar.
+ *
+ * @param {{start: string|null, end: string|null, selecting: 'start'|'end'|'done'}} draft
+ * @param {string} clicked
+ * @returns {{start: string, end: string|null, selecting: 'end'|'done'}}
+ */
+export function resolveRangeClick(draft, clicked) {
+  const start = draft?.start ?? null
+  const selecting = draft?.selecting ?? 'start'
+
+  if (selecting === 'start' || !start) {
+    return { start: clicked, end: null, selecting: 'end' }
+  }
+
+  if (selecting === 'end') {
+    if (clicked < start) {
+      return { start: clicked, end: start, selecting: 'done' }
+    }
+
+    return { start, end: clicked, selecting: 'done' }
+  }
+
+  return { start: clicked, end: null, selecting: 'end' }
 }

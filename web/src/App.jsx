@@ -168,47 +168,6 @@ function App() {
       <header className="app-header">
         <div className="app-title">
           <h1>FireWatch</h1>
-          <p>
-            Tanzania burning calendar, {firstMonth.slice(0, 4)} to{' '}
-            {lastMonth.slice(0, 4)}, MODIS and VIIRS on one scale
-          </p>
-        </div>
-
-        <div className="header-controls">
-          <div
-            className="segmented"
-            role="group"
-            aria-label="Observation source"
-          >
-            {Object.values(SOURCES).map((source) => (
-              <button
-                key={source}
-                type="button"
-                className={selection.source === source ? 'is-active' : ''}
-                aria-pressed={selection.source === source}
-                onClick={() => setSource(source)}
-              >
-                {SOURCE_METADATA[source].label}
-              </button>
-            ))}
-          </div>
-
-          <MonthRangeControl
-            months={months}
-            start={selection.dateRange.start}
-            end={selection.dateRange.end}
-            onChange={handleRangeChange}
-            source={selection.source}
-          />
-
-          <button
-            className="btn btn-primary"
-            type="button"
-            onClick={handleExportCsv}
-            disabled={cellRows.length === 0}
-          >
-            Download CSV
-          </button>
         </div>
       </header>
 
@@ -238,6 +197,43 @@ function App() {
 
       {dataset && !loading && !error && (
         <div className="main-column">
+          <div className="filter-bar">
+            <div
+              className="segmented"
+              role="group"
+              aria-label="Observation source"
+            >
+              {Object.values(SOURCES).map((source) => (
+                <button
+                  key={source}
+                  type="button"
+                  className={selection.source === source ? 'is-active' : ''}
+                  aria-pressed={selection.source === source}
+                  onClick={() => setSource(source)}
+                >
+                  {SOURCE_METADATA[source].label}
+                </button>
+              ))}
+            </div>
+
+            <MonthRangeControl
+              months={months}
+              start={selection.dateRange.start}
+              end={selection.dateRange.end}
+              onChange={handleRangeChange}
+              source={selection.source}
+            />
+
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={handleExportCsv}
+              disabled={cellRows.length === 0}
+            >
+              Download CSV
+            </button>
+          </div>
+
           <KpiCards
             displayedSeries={displayedSeries}
             fullSeries={fullSeries}

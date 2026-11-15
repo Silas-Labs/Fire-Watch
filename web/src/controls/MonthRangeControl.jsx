@@ -1,8 +1,49 @@
-import { useMemo } from 'react'
-import { getRangePresets, groupMonthsByYear } from './monthRange.js'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  getRangePresets,
+  groupMonthsByYear,
+  resolveRangeClick,
+} from './monthRange.js'
+
+const MONTH_SHORT = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+]
+
+const MONTH_LONG = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+]
+
+function formatMonthLabel(value) {
+  if (!value) return ''
+  const [year, month] = value.split('-')
+  return `${MONTH_SHORT[Number(month) - 1]} ${year}`
+}
 
 /**
- * Constrained month range control with year-grouped options and presets.
+ * Month-range picker. Opens a calendar of months and only allows months
+ * that exist in the dataset.
  */
 export function MonthRangeControl({
   months = [],
@@ -11,86 +52,247 @@ export function MonthRangeControl({
   onChange,
   source = 'harmonized',
 }) {
-  const groups = useMemo(() => groupMonthsByYear(months), [months])
-  const presets = useMemo(() => getRangePresets(months), [months])
+  const [open, setOpen] = useState(false)
+  const [draft, setDraft] = useState({
+    start: start ?? null,
+    end: end ?? null,
+    selecting: 'done',
+  })
+  const [viewYear, setViewYear] = useState(() =>
+    Number((start || '2000').slice(0, 4)),
+  )
 
-  const activePreset = presets.find(
-    (preset) => preset.start === start && preset.end === end,
-  )?.id
+  const rootRef = useRef(null)
+  const triggerRef = useRef(null)
+  const pickerRef = useRef(null)
 
-  const showsViirsGap = source === 'viirs' && start < '2012-01'
+  const earliest = source === 'viirs' ? '2012-01' : null
+  const availableMonths = useMemo(
+    () => months.filter((month) => !earliest || month >= earliest),
+    [months, earliest],
+  )
+  const groups = useMemo(
+    () => groupMonthsByYear(availableMonths),
+    [availableMonths],
+  )
+  const availableSet = useMemo(
+    () => new Set(availableMonths),
+    [availableMonths],
+  )
+  const presets = useMemo(
+    () => getRangePresets(availableMonths),
+    [availableMonths],
+  )
 
-  function handleStartChange(event) {
-    onChange({ start: event.target.value, end })
+  const years = groups.map((group) => group.year)
+  const minYear = years[0] ?? null
+  const maxYear = years[years.length - 1] ?? null
+
+  useEffect(() => {
+    if (!open) return
+
+    function handlePointerDown(event) {
+      if (rootRef.current && !rootRef.current.contains(event.target)) {
+        setOpen(false)
+      }
+    }
+
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') {
+        setOpen(false)
+        triggerRef.current?.focus()
+      }
+    }
+
+    document.addEventListener('pointerdown', handlePointerDown)
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    const firstAvailable = pickerRef.current?.querySelector(
+      '.month-cell:not(:disabled)',
+    )
+    firstAvailable?.focus()
+  }, [open])
+
+  function togglePicker() {
+    if (open) {
+      setOpen(false)
+      return
+    }
+
+    const startYear = Number((start || availableMonths[0] || '2000').slice(0, 4))
+    const clampedYear = Math.min(
+      Math.max(startYear, minYear ?? startYear),
+      maxYear ?? startYear,
+    )
+
+    setDraft({
+      start: start ?? null,
+      end: end ?? null,
+      selecting: 'done',
+    })
+    setViewYear(clampedYear)
+    setOpen(true)
   }
 
-  function handleEndChange(event) {
-    onChange({ start, end: event.target.value })
+  function closePicker() {
+    setOpen(false)
+    triggerRef.current?.focus()
   }
+
+  function commit(range) {
+    if (!range.start || !range.end) return
+    onChange({ start: range.start, end: range.end })
+    closePicker()
+  }
+
+  function handleMonthClick(value) {
+    if (!availableSet.has(value)) return
+
+    const next = resolveRangeClick(draft, value)
+    setDraft(next)
+
+    if (next.selecting === 'done') {
+      commit(next)
+    }
+  }
+
+  const label =
+    start && end
+      ? `${formatMonthLabel(start)} – ${formatMonthLabel(end)}`
+      : 'Select a range'
+
+  const rangeSummary = years.length
+    ? `${minYear}–${maxYear}`
+    : 'no data loaded'
 
   return (
-    <div className="range-control">
-      <div className="range-fields">
-        <label className="field">
-          <span>From</span>
-          <select value={start} onChange={handleStartChange}>
-            {groups.map((group) => (
-              <optgroup key={group.year} label={String(group.year)}>
-                {group.months.map((month) => (
-                  <option
-                    key={month.value}
-                    value={month.value}
-                    disabled={month.value > end}
-                  >
-                    {month.label}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
-        </label>
+    <div className="range-control" ref={rootRef}>
+      <span className="range-label">Date range</span>
 
-        <label className="field">
-          <span>To</span>
-          <select value={end} onChange={handleEndChange}>
-            {groups.map((group) => (
-              <optgroup key={group.year} label={String(group.year)}>
-                {group.months.map((month) => (
-                  <option
-                    key={month.value}
-                    value={month.value}
-                    disabled={month.value < start}
-                  >
-                    {month.label}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
-        </label>
-      </div>
-
-      <div
-        className="range-presets"
-        role="group"
-        aria-label="Date range presets"
+      <button
+        ref={triggerRef}
+        type="button"
+        className={`range-trigger${open ? ' is-open' : ''}`}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={togglePicker}
       >
-        {presets.map((preset) => (
-          <button
-            key={preset.id}
-            type="button"
-            className={`range-preset${activePreset === preset.id ? ' is-active' : ''}`}
-            aria-pressed={activePreset === preset.id}
-            onClick={() => onChange({ start: preset.start, end: preset.end })}
-          >
-            {preset.label}
-          </button>
-        ))}
-      </div>
+        <span>{label}</span>
+        <span className="range-trigger-icon" aria-hidden="true">
+          ▾
+        </span>
+      </button>
 
-      {showsViirsGap && (
+      {open && (
+        <div
+          ref={pickerRef}
+          className="month-picker"
+          role="dialog"
+          aria-label="Choose a month range"
+        >
+          <div className="month-picker-head">
+            <button
+              type="button"
+              className="month-nav"
+              onClick={() => setViewYear((year) => Math.max(minYear, year - 1))}
+              disabled={viewYear <= minYear}
+              aria-label="Previous year"
+            >
+              ‹
+            </button>
+
+            <strong>{viewYear}</strong>
+
+            <button
+              type="button"
+              className="month-nav"
+              onClick={() => setViewYear((year) => Math.min(maxYear, year + 1))}
+              disabled={viewYear >= maxYear}
+              aria-label="Next year"
+            >
+              ›
+            </button>
+
+            <button
+              type="button"
+              className="month-picker-close"
+              onClick={closePicker}
+              aria-label="Close date picker"
+            >
+              ×
+            </button>
+          </div>
+
+          <div className="month-grid" role="group" aria-label={`Months in ${viewYear}`}>
+            {MONTH_SHORT.map((name, index) => {
+              const value = `${viewYear}-${String(index + 1).padStart(2, '0')}`
+              const isAvailable = availableSet.has(value)
+              const isStart = draft.start === value
+              const isEnd = draft.end === value
+              const isInRange =
+                draft.start &&
+                draft.end &&
+                value >= draft.start &&
+                value <= draft.end
+
+              const classes = ['month-cell']
+              if (isStart || isEnd) classes.push('is-edge')
+              else if (isInRange) classes.push('is-in-range')
+
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  className={classes.join(' ')}
+                  disabled={!isAvailable}
+                  aria-pressed={isStart || isEnd}
+                  aria-label={`${MONTH_LONG[index]} ${viewYear}${
+                    isAvailable ? '' : ' (unavailable)'
+                  }`}
+                  onClick={() => handleMonthClick(value)}
+                >
+                  {name}
+                </button>
+              )
+            })}
+          </div>
+
+          <p className="month-picker-hint">
+            {draft.selecting === 'end' && draft.start
+              ? 'Now choose the end month.'
+              : 'Choose a start month, then an end month.'}
+          </p>
+
+          <div className="month-picker-presets">
+            {presets.map((preset) => (
+              <button
+                key={preset.id}
+                type="button"
+                className="range-preset"
+                onClick={() => commit({ start: preset.start, end: preset.end })}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+
+          <p className="month-picker-footnote">
+            Only months in the dataset ({rangeSummary}) are selectable.
+          </p>
+        </div>
+      )}
+
+      {source === 'viirs' && start < '2012-01' && (
         <p className="range-note">
-          Raw VIIRS starts in January 2012. Earlier months show no detection.
+          Raw VIIRS starts in January 2012. Pick a range from 2012 onward.
         </p>
       )}
     </div>

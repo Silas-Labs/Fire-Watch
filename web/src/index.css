@@ -133,11 +133,15 @@ p {
   line-height: 1.5;
 }
 
-.header-controls {
+.filter-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   gap: 12px;
+}
+
+.filter-bar > .btn-primary {
+  margin-left: auto;
 }
 
 .segmented {
@@ -173,43 +177,161 @@ p {
   font-weight: 600;
 }
 
-.field {
+.range-control {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.range-label {
   color: var(--muted);
   font-size: 13px;
 }
 
-.field select {
+.range-trigger {
+  min-width: 250px;
   min-height: 44px;
-  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 12px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   background: var(--surface);
   color: var(--text);
   font-size: 14px;
+  font-variant-numeric: tabular-nums;
 }
 
-.field select:hover {
+.range-trigger:hover {
   border-color: var(--subtle);
 }
 
-.range-control {
+.range-trigger.is-open {
+  border-color: var(--accent);
+}
+
+.range-trigger-icon {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.month-picker {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 1000;
+  width: min(330px, calc(100vw - 32px));
+  padding: 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 12px 32px rgba(31, 35, 32, 0.14);
+}
+
+.month-picker-head {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 8px;
+  margin-bottom: 12px;
 }
 
-.range-fields {
-  display: flex;
-  gap: 10px;
+.month-picker-head strong {
+  flex: 1;
+  text-align: center;
+  font-size: 15px;
 }
 
-.range-presets {
+.month-nav,
+.month-picker-close {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-raised);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.month-nav:disabled {
+  opacity: 0.35;
+}
+
+.month-picker-close {
+  margin-left: 4px;
+  color: var(--muted);
+}
+
+.month-picker-close:hover {
+  color: var(--text);
+}
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.month-cell {
+  min-height: 38px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: var(--surface-sunken);
+  color: var(--text);
+  font-size: 12px;
+}
+
+.month-cell:hover:not(:disabled) {
+  border-color: var(--border-strong);
+}
+
+.month-cell:disabled {
+  background: transparent;
+  color: var(--subtle);
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.month-cell.is-in-range {
+  background: var(--accent-soft);
+  color: var(--accent-bright);
+}
+
+.month-cell.is-edge {
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.month-picker-hint,
+.month-picker-footnote {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.month-picker-hint {
+  margin-top: 10px;
+}
+
+.month-picker-footnote {
+  margin-top: 10px;
+  color: var(--subtle);
+  font-size: 11px;
+}
+
+.month-picker-presets {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
 }
 
 .range-preset {
@@ -225,13 +347,6 @@ p {
 .range-preset:hover {
   border-color: var(--border-strong);
   color: var(--text);
-}
-
-.range-preset.is-active {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-  color: var(--accent-bright);
-  font-weight: 600;
 }
 
 .range-note {
@@ -1120,8 +1235,9 @@ p {
     font-size: 14px;
   }
 
-  .header-controls {
-    width: 100%;
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .segmented {
@@ -1134,24 +1250,17 @@ p {
     font-size: 13px;
   }
 
-  .header-controls .field {
-    flex: 1;
-  }
-
   .range-control {
-    flex: 1 1 100%;
-  }
-
-  .range-fields {
     width: 100%;
   }
 
-  .range-fields .field {
-    flex: 1;
+  .range-trigger {
+    width: 100%;
   }
 
-  .header-controls .btn-primary {
+  .filter-bar > .btn-primary {
     width: 100%;
+    margin-left: 0;
   }
 
   .kpi-grid {

@@ -3,6 +3,7 @@ import {
   getRangePresets,
   groupMonthsByYear,
   isValidRange,
+  resolveRangeClick,
 } from './monthRange.js'
 
 const MONTHS = [
@@ -99,5 +100,40 @@ describe('isValidRange', () => {
     expect(isValidRange('1999-01', '2002-01', MONTHS)).toBe(false)
     expect(isValidRange('', '2002-01', MONTHS)).toBe(false)
     expect(isValidRange('2000-11', null, MONTHS)).toBe(false)
+  })
+})
+
+describe('resolveRangeClick', () => {
+  it('starts a new range when nothing is selected', () => {
+    expect(
+      resolveRangeClick({ start: null, end: null, selecting: 'start' }, '2020-01'),
+    ).toEqual({ start: '2020-01', end: null, selecting: 'end' })
+  })
+
+  it('sets the end when the second month is later', () => {
+    expect(
+      resolveRangeClick({ start: '2020-01', end: null, selecting: 'end' }, '2020-06'),
+    ).toEqual({ start: '2020-01', end: '2020-06', selecting: 'done' })
+  })
+
+  it('swaps the endpoints when the second month is earlier', () => {
+    expect(
+      resolveRangeClick({ start: '2020-06', end: null, selecting: 'end' }, '2020-01'),
+    ).toEqual({ start: '2020-01', end: '2020-06', selecting: 'done' })
+  })
+
+  it('allows a single-month range', () => {
+    expect(
+      resolveRangeClick({ start: '2020-01', end: null, selecting: 'end' }, '2020-01'),
+    ).toEqual({ start: '2020-01', end: '2020-01', selecting: 'done' })
+  })
+
+  it('starts over after a complete range', () => {
+    expect(
+      resolveRangeClick(
+        { start: '2020-01', end: '2020-06', selecting: 'done' },
+        '2021-03',
+      ),
+    ).toEqual({ start: '2021-03', end: null, selecting: 'end' })
   })
 })
