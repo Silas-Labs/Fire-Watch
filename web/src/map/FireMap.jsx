@@ -3,8 +3,6 @@ import { useEffect, useMemo, useRef } from 'react'
 import L from 'leaflet'
 
 import 'leaflet/dist/leaflet.css'
-import 'leaflet-draw/dist/leaflet.draw.css'
-import 'leaflet-draw'
 
 import eastAfrica from './data/east-africa.geojson?raw'
 import world from './data/world.geojson?raw'
@@ -39,15 +37,6 @@ const TANZANIA_STYLE = {
   fillOpacity: 0.08,
 }
 
-const SELECTION_STYLE = {
-  color: '#f0a04b',
-  weight: 2,
-  opacity: 1,
-  fillColor: '#f0a04b',
-  fillOpacity: 0.12,
-  dashArray: '6 5',
-}
-
 const FIRE_COLORS = [
   '#ffc766',
   '#ffad42',
@@ -78,14 +67,9 @@ function getFireColor(value, maximum) {
 function FireMap() {
   const containerRef = useRef(null)
   const mapRef = useRef(null)
-  const selectionLayerRef = useRef(null)
   const activityLayerRef = useRef(null)
 
-  const {
-    dataset,
-    selection,
-    setAOI,
-  } = useFireWatch()
+  const { dataset, selection } = useFireWatch()
 
   const { aoi, source, dateRange } = selection
 
@@ -137,6 +121,7 @@ const hasActivity = activityCells.some(
       preferCanvas: true,
       minZoom: 2,
       maxZoom: 12,
+      maxBoundsViscosity: 1,
     })
 
     const satelliteLayer = L.tileLayer(
@@ -193,48 +178,12 @@ L.geoJSON(JSON.parse(world), {
       padding: [20, 20],
     })
 
-    const drawControl = new L.Control.Draw({
-      position: 'topleft',
-      draw: {
-        polygon: false,
-        polyline: false,
-        circle: false,
-        circlemarker: false,
-        marker: false,
-        rectangle: {
-          shapeOptions: {
-            ...SELECTION_STYLE,
-          },
-        },
-      },
-      edit: false,
-    })
-
-    map.addControl(drawControl)
-
-    function handleRectangleCreated(event) {
-      if (event.layerType !== 'rectangle') return
-
-      const bounds = event.layer.getBounds()
-
-      setAOI({
-        north: bounds.getNorth(),
-        south: bounds.getSouth(),
-        east: bounds.getEast(),
-        west: bounds.getWest(),
-      })
-    }
-
-    map.on(L.Draw.Event.CREATED, handleRectangleCreated)
-
     return () => {
-      map.off(L.Draw.Event.CREATED, handleRectangleCreated)
       map.remove()
       mapRef.current = null
-      selectionLayerRef.current = null
       activityLayerRef.current = null
     }
-  }, [setAOI])
+  }, [])
 
   // Render the fire activity grid.
   useEffect(() => {
@@ -289,40 +238,34 @@ L.geoJSON(JSON.parse(world), {
     activityLayerRef.current = activityLayer
   }, [dataset, activityCells, source])
 
-  // Synchronise the visible AOI rectangle.
-  
-  // Synchronise the visible AOI rectangle and map viewport.
+  // Keep the map focused on the study area and prevent zooming out past it.
   useEffect(() => {
     const map = mapRef.current
 
-    if (!map) return
+    if (!map || !dataset) return
 
-    if (selectionLayerRef.current) {
-      map.removeLayer(selectionLayerRef.current)
-      selectionLayerRef.current = null
+    const [west, south, east, north] = dataset.meta.bbox
+    const bounds = L.latLngBounds([south, west], [north, east])
+
+    function applyViewportLimit() {
+      const fitZoom = map.getBoundsZoom(bounds, false)
+
+      map.setMaxBounds(bounds)
+      map.setMinZoom(fitZoom)
+
+      if (map.getZoom() < fitZoom) {
+        map.setZoom(fitZoom)
+      }
     }
 
-    if (!aoi) return
+    applyViewportLimit()
+    map.fitBounds(bounds, { animate: true, duration: 0.8 })
+    map.on('resize', applyViewportLimit)
 
-    const rectangle = L.rectangle(
-      [
-        [aoi.south, aoi.west],
-        [aoi.north, aoi.east],
-      ],
-      SELECTION_STYLE,
-    )
-
-    rectangle.addTo(map)
-    selectionLayerRef.current = rectangle
-
-    // Zoom into the selected area.
-    map.fitBounds(rectangle.getBounds(), {
-      padding: [48, 48],
-      maxZoom: 8,
-      animate: true,
-      duration: 0.8,
-    })
-  }, [aoi])
+    return () => {
+      map.off('resize', applyViewportLimit)
+    }
+  }, [dataset])
 
 
  return (
@@ -341,7 +284,7 @@ L.geoJSON(JSON.parse(world), {
       >
         <div className="legend-heading">
           <span className="legend-indicator" />
-          <strong>FIRE ACTIVITY</strong>
+          <strong>Fire activity</strong>
         </div>
 
         <p>Relative intensity</p>
@@ -358,8 +301,8 @@ L.geoJSON(JSON.parse(world), {
         </div>
 
         <div className="legend-labels">
-          <span>LOW</span>
-          <span>HIGH</span>
+          <span>Low</span>
+          <span>High</span>
         </div>
       </aside>
     )}

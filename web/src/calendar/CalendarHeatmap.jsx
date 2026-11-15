@@ -12,10 +12,9 @@ const MONTH_NAMES = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ];
 
-// Colorblind-safe Viridis ramp
-const VIRIDIS_COLORS = [
-  '#440154', '#482878', '#3e4989', '#31688e', '#26828e',
-  '#1f9e89', '#35b779', '#6ece58', '#b5de2b', '#fde725'
+// Ember ramp: cool ember to intense fire, matching the map palette.
+const HEAT_COLORS = [
+  '#3a2a1c', '#7a4322', '#b65a25', '#f0872e', '#ffc766',
 ];
 
 /**
@@ -33,7 +32,6 @@ export const CalendarHeatmap = forwardRef(function CalendarHeatmap(
   {
     series = [],
     source = SOURCES.HARMONIZED,
-    onSourceChange,
     highlightedMonth = null,
     onCellClick,
     onChartReady,
@@ -53,7 +51,7 @@ export const CalendarHeatmap = forwardRef(function CalendarHeatmap(
       return chartInstanceRef.current.getDataURL({
         type: 'png',
         pixelRatio: 2, // High-res presentation quality
-        backgroundColor: '#1e293b',
+        backgroundColor: '#121b1f',
         excludeComponents: ['toolbox'],
         ...options,
       });
@@ -75,9 +73,8 @@ export const CalendarHeatmap = forwardRef(function CalendarHeatmap(
 
     for (const item of series) {
       if (!item || !item.month) continue;
-      const [yStr, mStr] = item.month.split('-');
+      const [yStr] = item.month.split('-');
       const y = parseInt(yStr, 10);
-      const m = parseInt(mStr, 10);
       yearSet.add(y);
 
       const val = getValueForSource(item, source);
@@ -117,7 +114,7 @@ export const CalendarHeatmap = forwardRef(function CalendarHeatmap(
     if (!chartContainerRef.current) return;
 
     if (!chartInstanceRef.current) {
-      chartInstanceRef.current = echarts.init(chartContainerRef.current, 'dark', {
+      chartInstanceRef.current = echarts.init(chartContainerRef.current, null, {
         renderer: 'canvas',
       });
       if (onChartReady) {
@@ -144,16 +141,16 @@ export const CalendarHeatmap = forwardRef(function CalendarHeatmap(
     }
 
     const option = {
-      backgroundColor: '#1e293b',
+      backgroundColor: 'transparent',
       textStyle: {
-        fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
+        fontFamily: "'IBM Plex Sans', 'Segoe UI', sans-serif",
       },
       tooltip: {
         position: 'top',
-        backgroundColor: '#0f172a',
-        borderColor: '#475569',
+        backgroundColor: '#0d1519',
+        borderColor: '#3a4a50',
         borderWidth: 1,
-        textStyle: { color: '#f8fafc', fontSize: 13 },
+        textStyle: { color: '#e6ecee', fontSize: 13 },
         formatter: (params) => {
           const [mIdx, yIdx, val, monthKey] = params.data;
           const monthName = MONTH_NAMES[mIdx];
@@ -163,18 +160,18 @@ export const CalendarHeatmap = forwardRef(function CalendarHeatmap(
 
           let statusLine = '';
           if (val === null) {
-            statusLine = `<div style="color: #94a3b8; font-style: italic;">No observation / Sensor unavailable</div>`;
+            statusLine = `<div style="color: #9aa9ad; font-style: italic;">No observation / sensor unavailable</div>`;
           } else if (val === 0) {
-            statusLine = `<div style="color: #38bdf8;">True Zero (No fire detected)</div>`;
+            statusLine = `<div style="color: #8fb0c4;">True zero (no fire detected)</div>`;
           }
 
           return `
             <div style="font-weight: 600; margin-bottom: 4px;">${monthName} ${year} (${monthKey})</div>
-            <div style="color: #f97316; font-size: 14px; font-weight: 700;">
-              ${formattedVal} <span style="font-size: 11px; font-weight: normal; color: #cbd5e1;">${activeMeta.unit}</span>
+            <div style="color: #ffb45e; font-size: 14px; font-weight: 700;">
+              ${formattedVal} <span style="font-size: 11px; font-weight: normal; color: #9aa9ad;">${activeMeta.unit}</span>
             </div>
             ${statusLine}
-            ${isHighlighted ? '<div style="color: #eab308; margin-top: 4px; font-weight: bold;">⚡ Flagged Unusual Period</div>' : ''}
+            ${isHighlighted ? '<div style="color: #ffb45e; margin-top: 4px; font-weight: 600;">Flagged unusual period</div>' : ''}
           `;
         },
       },
@@ -188,15 +185,15 @@ export const CalendarHeatmap = forwardRef(function CalendarHeatmap(
         type: 'category',
         data: MONTH_NAMES,
         splitArea: { show: true, areaStyle: { color: ['rgba(255,255,255,0.02)', 'transparent'] } },
-        axisLabel: { color: '#cbd5e1', fontSize: 12 },
-        axisLine: { lineStyle: { color: '#475569' } },
+        axisLabel: { color: '#9aa9ad', fontSize: 12 },
+        axisLine: { lineStyle: { color: '#2b393e' } },
       },
       yAxis: {
         type: 'category',
         data: years.map(String),
         splitArea: { show: true },
-        axisLabel: { color: '#cbd5e1', fontSize: 12 },
-        axisLine: { lineStyle: { color: '#475569' } },
+        axisLabel: { color: '#9aa9ad', fontSize: 12 },
+        axisLine: { lineStyle: { color: '#2b393e' } },
       },
       visualMap: {
         min: 0,
@@ -206,9 +203,9 @@ export const CalendarHeatmap = forwardRef(function CalendarHeatmap(
         left: 'center',
         bottom: 5,
         inRange: {
-          color: VIRIDIS_COLORS,
+          color: HEAT_COLORS,
         },
-        textStyle: { color: '#94a3b8', fontSize: 11 },
+        textStyle: { color: '#9aa9ad', fontSize: 11 },
         formatter: (val) => Math.round(val).toLocaleString(),
       },
       series: [
@@ -221,8 +218,8 @@ export const CalendarHeatmap = forwardRef(function CalendarHeatmap(
               return {
                 value: [mIdx, yIdx, '-'],
                 itemStyle: {
-                  color: '#0f172a',
-                  borderColor: isHighlighted ? '#eab308' : '#334155',
+                  color: '#0d1519',
+                  borderColor: isHighlighted ? '#ed9b45' : '#2b393e',
                   borderWidth: isHighlighted ? 2 : 1,
                   borderType: 'dashed',
                 },
@@ -232,10 +229,8 @@ export const CalendarHeatmap = forwardRef(function CalendarHeatmap(
               return {
                 value: [mIdx, yIdx, val, monthKey],
                 itemStyle: {
-                  borderColor: '#eab308',
+                  borderColor: '#ffb45e',
                   borderWidth: 3,
-                  shadowBlur: 6,
-                  shadowColor: '#eab308',
                 },
               };
             }
@@ -243,14 +238,12 @@ export const CalendarHeatmap = forwardRef(function CalendarHeatmap(
           }),
           label: { show: false },
           itemStyle: {
-            borderColor: '#1e293b',
+            borderColor: '#121b1f',
             borderWidth: 1,
           },
           emphasis: {
             itemStyle: {
-              shadowBlur: 10,
-              shadowColor: 'rgba(0, 0, 0, 0.5)',
-              borderColor: '#f97316',
+              borderColor: '#ffb45e',
               borderWidth: 2,
             },
           },
@@ -279,167 +272,68 @@ export const CalendarHeatmap = forwardRef(function CalendarHeatmap(
   }, []);
 
   return (
-    <div
-      style={{
-        backgroundColor: '#1e293b',
-        borderRadius: '8px',
-        border: '1px solid #334155',
-        padding: '1.25rem',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem',
-      }}
-    >
-      {/* Calendar Header with Source Toggle & Accessibility Switch */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1rem',
-        }}
-      >
+    <div className="chart-panel">
+      <div className="chart-header">
         <div>
-          <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#f8fafc' }}>
-            Burning Calendar (Year by Month)
-          </h2>
-          <p style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-            Colorblind-safe Viridis ramp · {activeMeta.description}
+          <h2>Burning calendar</h2>
+          <p>
+            Year by month for the selected area. {activeMeta.description}.
           </p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-          {/* Three-way source buttons */}
-          <div
-            role="radiogroup"
-            aria-label="Calendar Sensor Source"
-            style={{
-              display: 'inline-flex',
-              backgroundColor: '#0f172a',
-              borderRadius: '6px',
-              padding: '2px',
-              border: '1px solid #334155',
-            }}
-          >
-            {Object.values(SOURCES).map((s) => {
-              const meta = SOURCE_METADATA[s];
-              const isSelected = source === s;
-              return (
-                <button
-                  key={s}
-                  type="button"
-                  role="radio"
-                  aria-checked={isSelected}
-                  onClick={() => onSourceChange && onSourceChange(s)}
-                  style={{
-                    padding: '0.4rem 0.75rem',
-                    backgroundColor: isSelected ? '#f97316' : 'transparent',
-                    color: isSelected ? '#000' : '#cbd5e1',
-                    border: 'none',
-                    borderRadius: '4px',
-                    fontSize: '0.8rem',
-                    fontWeight: isSelected ? 700 : 500,
-                    cursor: 'pointer',
-                    minHeight: '44px',
-                    minWidth: '44px',
-                    transition: 'all 0.15s ease',
-                  }}
-                >
-                  {meta.label}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Accessible Table View Toggle */}
+        <div className="chart-actions">
           <button
             type="button"
             aria-expanded={showTable}
             onClick={() => setShowTable((prev) => !prev)}
-            style={{
-              padding: '0.4rem 0.75rem',
-              backgroundColor: showTable ? '#38bdf8' : '#334155',
-              color: showTable ? '#000' : '#f8fafc',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '0.8rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              minHeight: '44px',
-            }}
+            className={`text-button${showTable ? ' is-active' : ''}`}
           >
-            {showTable ? 'Hide Table View' : 'Accessible Table'}
+            {showTable ? 'Hide table' : 'View as table'}
           </button>
         </div>
       </div>
 
-      {/* Chart Canvas Area */}
       <div
         ref={chartContainerRef}
         role="region"
         aria-label={`Interactive burning calendar heatmap showing ${activeMeta.label}`}
         style={{
           width: '100%',
-          height: `${Math.max(260, years.length * 28 + 120)}px`,
+          height: `${Math.max(260, years.length * 22 + 120)}px`,
           minHeight: '260px',
         }}
       />
 
-      {/* Empty State Overlay */}
       {!hasData && (
-        <div
-          role="status"
-          style={{
-            textAlign: 'center',
-            padding: '2rem',
-            color: '#94a3b8',
-            fontSize: '0.875rem',
-          }}
-        >
+        <div className="chart-empty" role="status">
           No observation data available for the current filter.
         </div>
       )}
 
-      {/* Accessible Screen Reader Table Alternative */}
       {showTable && (
-        <div
-          style={{
-            marginTop: '0.5rem',
-            overflowX: 'auto',
-            maxHeight: '300px',
-            border: '1px solid #334155',
-            borderRadius: '6px',
-          }}
-        >
+        <div className="chart-table-wrap">
           <table
-            aria-label="Burning Calendar Data Table"
-            style={{
-              width: '100%',
-              borderCollapse: 'collapse',
-              fontSize: '0.75rem',
-              color: '#f8fafc',
-              textAlign: 'right',
-            }}
+            className="chart-table"
+            aria-label="Burning calendar data table"
           >
             <thead>
-              <tr style={{ backgroundColor: '#0f172a', borderBottom: '1px solid #334155' }}>
-                <th style={{ padding: '6px', textAlign: 'left' }}>Year</th>
+              <tr>
+                <th>Year</th>
                 {MONTH_NAMES.map((m) => (
-                  <th key={m} style={{ padding: '6px' }}>{m}</th>
+                  <th key={m}>{m}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {years.map((yr) => (
-                <tr key={yr} style={{ borderBottom: '1px solid #334155' }}>
-                  <td style={{ padding: '6px', textAlign: 'left', fontWeight: 600 }}>{yr}</td>
+                <tr key={yr}>
+                  <td>{yr}</td>
                   {MONTH_NAMES.map((m, mIdx) => {
                     const monthKey = `${yr}-${String(mIdx + 1).padStart(2, '0')}`;
                     const entry = series.find((s) => s.month === monthKey);
                     const val = entry ? getValueForSource(entry, source) : null;
                     return (
-                      <td key={monthKey} style={{ padding: '6px' }}>
+                      <td key={monthKey}>
                         {formatHotspotValue(val, source, { placeholder: '—' })}
                       </td>
                     );

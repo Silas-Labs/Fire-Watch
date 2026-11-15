@@ -12,12 +12,12 @@ import {
 
 /**
  * Headline KPI Cards Component (Domain D - Peter)
- * 
+ *
  * Shows:
  * 1. Current Available Month vs. Historical Median
  * 2. Busiest Month in Selection
  * 3. Busiest Year in Selection
- * 
+ *
  * Props:
  * - displayedSeries: Filtered monthly observations for the current date range
  * - fullSeries: Complete historical observations for the AOI (baseline source)
@@ -42,155 +42,86 @@ export function KpiCards({
     return calculateBusiestYearKpi(displayedSeries, source);
   }, [displayedSeries, source]);
 
+  const trendClass =
+    currentMonthKpi.status === 'higher'
+      ? 'kpi-trend-high'
+      : currentMonthKpi.status === 'lower'
+        ? 'kpi-trend-low'
+        : '';
+
   return (
-    <section
-      aria-label="Fire Activity Headline Figures"
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-        gap: '1rem',
-      }}
-    >
-      {/* Card 1: Current Month vs Historical Median */}
-      <article
-        style={{
-          backgroundColor: '#1e293b',
-          border: '1px solid #334155',
-          borderRadius: '8px',
-          padding: '1.25rem',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-        }}
-      >
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase' }}>
-              Current Available Month
-            </span>
-            {currentMonthKpi.status === 'higher' && (
-              <span
-                style={{
-                  fontSize: '0.7rem',
-                  padding: '2px 6px',
-                  borderRadius: '4px',
-                  backgroundColor: 'rgba(239, 68, 68, 0.2)',
-                  color: '#f87171',
-                  fontWeight: 700,
-                }}
-              >
-                Above Median
-              </span>
-            )}
-            {currentMonthKpi.status === 'lower' && (
-              <span
-                style={{
-                  fontSize: '0.7rem',
-                  padding: '2px 6px',
-                  borderRadius: '4px',
-                  backgroundColor: 'rgba(56, 189, 248, 0.2)',
-                  color: '#38bdf8',
-                  fontWeight: 700,
-                }}
-              >
-                Below Median
-              </span>
-            )}
-          </div>
+    <section className="kpi-grid" aria-label="Fire activity headline figures">
+      <article className="kpi-card">
+        <span className="kpi-label">
+          {currentMonthKpi.targetMonthLabel || 'Current available month'}{' '}
+          against the median
+        </span>
 
-          <div style={{ fontSize: '0.875rem', color: '#cbd5e1', marginTop: '0.25rem', fontWeight: 600 }}>
-            {currentMonthKpi.targetMonthLabel || 'No data'}
-          </div>
-
-          <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-            <span style={{ fontSize: '1.875rem', fontWeight: 800, color: '#f8fafc' }}>
-              {formatHotspotValue(currentMonthKpi.currentValue, source, { placeholder: '—' })}
-            </span>
-            <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-              {meta.shortUnit}
-            </span>
-          </div>
+        <div className="kpi-value-row">
+          <span className="kpi-value">
+            {formatHotspotValue(currentMonthKpi.currentValue, source, {
+              placeholder: '—',
+            })}
+          </span>
+          <span className="kpi-unit">{meta.shortUnit}</span>
         </div>
 
-        <div style={{ marginTop: '0.75rem', borderTop: '1px solid #334155', paddingTop: '0.5rem', fontSize: '0.75rem', color: '#94a3b8' }}>
-          <div>
-            Historical Median: <strong style={{ color: '#cbd5e1' }}>{formatHotspotValue(currentMonthKpi.historicalMedian, source, { placeholder: '—' })}</strong>
-            {currentMonthKpi.baselineYearCount ? ` (${currentMonthKpi.baselineYearCount} yrs)` : ''}
-          </div>
-          <div style={{ marginTop: '2px', color: currentMonthKpi.status === 'higher' ? '#f87171' : currentMonthKpi.status === 'lower' ? '#38bdf8' : '#94a3b8' }}>
-            <strong>{currentMonthKpi.percentText}</strong>
-          </div>
+        <div className="kpi-foot">
+          <span>
+            Median:{' '}
+            <strong>
+              {formatHotspotValue(currentMonthKpi.historicalMedian, source, {
+                placeholder: '—',
+              })}
+            </strong>
+            {currentMonthKpi.baselineYearCount
+              ? ` (${currentMonthKpi.baselineYearCount} yrs)`
+              : ''}
+          </span>
+          {currentMonthKpi.percentText && (
+            <span className={trendClass}>{currentMonthKpi.percentText}</span>
+          )}
         </div>
       </article>
 
-      {/* Card 2: Busiest Month */}
-      <article
-        style={{
-          backgroundColor: '#1e293b',
-          border: '1px solid #334155',
-          borderRadius: '8px',
-          padding: '1.25rem',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-        }}
-      >
-        <div>
-          <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase' }}>
-            Busiest Month (in Selection)
-          </span>
-          <div style={{ fontSize: '0.875rem', color: '#cbd5e1', marginTop: '0.25rem', fontWeight: 600 }}>
-            {busiestMonthKpi.monthLabel}
-          </div>
+      <article className="kpi-card is-accent">
+        <span className="kpi-label">Busiest month in selection</span>
 
-          <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-            <span style={{ fontSize: '1.875rem', fontWeight: 800, color: '#f97316' }}>
-              {formatHotspotValue(busiestMonthKpi.value, source, { placeholder: '—' })}
-            </span>
-            <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-              {meta.shortUnit}
-            </span>
-          </div>
+        <div className="kpi-value-row">
+          <span className="kpi-value">
+            {formatHotspotValue(busiestMonthKpi.value, source, {
+              placeholder: '—',
+            })}
+          </span>
+          <span className="kpi-unit">{meta.shortUnit}</span>
         </div>
 
-        <div style={{ marginTop: '0.75rem', borderTop: '1px solid #334155', paddingTop: '0.5rem', fontSize: '0.75rem', color: '#94a3b8' }}>
-          Peak monthly fire activity detected within the selected timeframe.
+        <div className="kpi-foot">
+          <span>{busiestMonthKpi.monthLabel || 'No data'}</span>
+          <span>Peak monthly activity for the selected period.</span>
         </div>
       </article>
 
-      {/* Card 3: Busiest Year */}
-      <article
-        style={{
-          backgroundColor: '#1e293b',
-          border: '1px solid #334155',
-          borderRadius: '8px',
-          padding: '1.25rem',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-        }}
-      >
-        <div>
-          <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase' }}>
-            Busiest Year (in Selection)
-          </span>
-          <div style={{ fontSize: '0.875rem', color: '#cbd5e1', marginTop: '0.25rem', fontWeight: 600 }}>
-            {busiestYearKpi.hasData ? `Year ${busiestYearKpi.year}` : 'No data'}
-            {busiestYearKpi.isPartial && <span style={{ color: '#f59e0b', fontSize: '0.75rem', marginLeft: '6px' }}>(partial range)</span>}
-          </div>
+      <article className="kpi-card is-accent">
+        <span className="kpi-label">Busiest year in selection</span>
 
-          <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-            <span style={{ fontSize: '1.875rem', fontWeight: 800, color: '#eab308' }}>
-              {formatHotspotValue(busiestYearKpi.value, source, { placeholder: '—' })}
-            </span>
-            <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-              annual sum ({meta.shortUnit})
-            </span>
-          </div>
+        <div className="kpi-value-row">
+          <span className="kpi-value">
+            {formatHotspotValue(busiestYearKpi.value, source, {
+              placeholder: '—',
+            })}
+          </span>
+          <span className="kpi-unit">{meta.shortUnit}</span>
         </div>
 
-        <div style={{ marginTop: '0.75rem', borderTop: '1px solid #334155', paddingTop: '0.5rem', fontSize: '0.75rem', color: '#94a3b8' }}>
-          Cumulative annual total for the selected area.
+        <div className="kpi-foot">
+          <span>
+            {busiestYearKpi.hasData
+              ? `Year ${busiestYearKpi.year}`
+              : 'No data'}
+            {busiestYearKpi.isPartial ? ' · partial range' : ''}
+          </span>
+          <span>Cumulative annual total for the selected area.</span>
         </div>
       </article>
     </section>

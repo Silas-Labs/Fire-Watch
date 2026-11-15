@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import * as echarts from 'echarts';
 import {
   SOURCES,
-  SOURCE_METADATA,
   getValueForSource,
   formatHotspotValue,
 } from '../calendar/dataHelpers.js';
@@ -71,7 +70,7 @@ export function ComparisonChart({ series = [] }) {
     if (!chartContainerRef.current) return;
 
     if (!chartInstanceRef.current) {
-      chartInstanceRef.current = echarts.init(chartContainerRef.current, 'dark', {
+      chartInstanceRef.current = echarts.init(chartContainerRef.current, null, {
         renderer: 'canvas',
       });
     }
@@ -84,24 +83,24 @@ export function ComparisonChart({ series = [] }) {
     }
 
     const option = {
-      backgroundColor: '#1e293b',
+      backgroundColor: 'transparent',
       textStyle: {
-        fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
+        fontFamily: "'IBM Plex Sans', 'Segoe UI', sans-serif",
       },
       tooltip: {
         trigger: 'axis',
-        backgroundColor: '#0f172a',
-        borderColor: '#475569',
+        backgroundColor: '#0d1519',
+        borderColor: '#3a4a50',
         borderWidth: 1,
-        textStyle: { color: '#f8fafc', fontSize: 13 },
+        textStyle: { color: '#e6ecee', fontSize: 13 },
         axisPointer: {
           type: 'cross',
-          lineStyle: { color: '#f97316', type: 'dashed' },
+          lineStyle: { color: '#ed9b45', type: 'dashed' },
         },
         formatter: (params) => {
           if (!params || params.length === 0) return '';
           const monthStr = params[0].axisValue;
-          let html = `<div style="font-weight: 700; margin-bottom: 6px; border-bottom: 1px solid #334155; padding-bottom: 4px;">Month: ${monthStr}</div>`;
+          let html = `<div style="font-weight: 600; margin-bottom: 6px; border-bottom: 1px solid #2b393e; padding-bottom: 4px;">Month: ${monthStr}</div>`;
           
           params.forEach((p) => {
             const rawVal = p.value === '-' ? null : p.value;
@@ -110,9 +109,9 @@ export function ComparisonChart({ series = [] }) {
               <div style="display: flex; justify-content: space-between; gap: 1rem; align-items: center; margin: 3px 0;">
                 <span style="display: flex; align-items: center; gap: 6px;">
                   <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${p.color};"></span>
-                  <span style="color: #cbd5e1;">${p.seriesName}:</span>
+                  <span style="color: #9aa9ad;">${p.seriesName}:</span>
                 </span>
-                <strong style="color: #f8fafc;">${displayVal}</strong>
+                <strong style="color: #e6ecee;">${displayVal}</strong>
               </div>
             `;
           });
@@ -122,7 +121,7 @@ export function ComparisonChart({ series = [] }) {
       legend: {
         data: ['Harmonized (MODIS-equiv)', 'Raw MODIS', 'Raw VIIRS'],
         top: 8,
-        textStyle: { color: '#cbd5e1', fontSize: 12 },
+        textStyle: { color: '#9aa9ad', fontSize: 12 },
         selectedMode: true,
       },
       grid: {
@@ -143,16 +142,16 @@ export function ComparisonChart({ series = [] }) {
           end: 100,
           bottom: 10,
           height: 20,
-          borderColor: '#334155',
-          textStyle: { color: '#94a3b8' },
+          borderColor: '#2b393e',
+          textStyle: { color: '#9aa9ad' },
         },
       ],
       xAxis: {
         type: 'category',
         data: months,
-        axisLine: { lineStyle: { color: '#475569' } },
+        axisLine: { lineStyle: { color: '#2b393e' } },
         axisLabel: {
-          color: '#cbd5e1',
+          color: '#9aa9ad',
           fontSize: 11,
           formatter: (val) => {
             // If January, highlight year
@@ -164,10 +163,10 @@ export function ComparisonChart({ series = [] }) {
       yAxis: {
         type: 'value',
         name: 'Hotspots',
-        nameTextStyle: { color: '#94a3b8', fontSize: 11 },
-        axisLine: { lineStyle: { color: '#475569' } },
+        nameTextStyle: { color: '#9aa9ad', fontSize: 11 },
+        axisLine: { lineStyle: { color: '#2b393e' } },
         splitLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.05)' } },
-        axisLabel: { color: '#cbd5e1', fontSize: 11 },
+        axisLabel: { color: '#9aa9ad', fontSize: 11 },
       },
       series: [
         {
@@ -179,14 +178,14 @@ export function ComparisonChart({ series = [] }) {
           symbol: 'circle',
           symbolSize: 4,
           lineStyle: {
-            color: '#f97316',
+            color: '#ed9b45',
             width: 2.5,
           },
-          itemStyle: { color: '#f97316' },
+          itemStyle: { color: '#ed9b45' },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: 'rgba(249, 115, 22, 0.2)' },
-              { offset: 1, color: 'rgba(249, 115, 22, 0.0)' },
+              { offset: 0, color: 'rgba(237, 155, 69, 0.18)' },
+              { offset: 1, color: 'rgba(237, 155, 69, 0.0)' },
             ]),
           },
         },
@@ -199,11 +198,11 @@ export function ComparisonChart({ series = [] }) {
           symbol: 'triangle',
           symbolSize: 5,
           lineStyle: {
-            color: '#38bdf8',
+            color: '#8fb0c4',
             width: 1.8,
             type: 'dashed',
           },
-          itemStyle: { color: '#38bdf8' },
+          itemStyle: { color: '#8fb0c4' },
         },
         {
           name: 'Raw VIIRS',
@@ -214,11 +213,11 @@ export function ComparisonChart({ series = [] }) {
           symbol: 'diamond',
           symbolSize: 5,
           lineStyle: {
-            color: '#a855f7',
+            color: '#c9a88b',
             width: 1.8,
             type: 'dotted',
           },
-          itemStyle: { color: '#a855f7' },
+          itemStyle: { color: '#c9a88b' },
         },
       ],
     };
@@ -244,111 +243,75 @@ export function ComparisonChart({ series = [] }) {
   }, []);
 
   return (
-    <div
-      style={{
-        backgroundColor: '#1e293b',
-        borderRadius: '8px',
-        border: '1px solid #334155',
-        padding: '1.25rem',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1rem',
-        }}
-      >
+    <div className="chart-panel">
+      <div className="chart-header">
         <div>
-          <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#f8fafc' }}>
-            Sensor Comparison: Raw vs. Harmonized Series
-          </h2>
-          <p style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-            Compare raw Terra/Aqua MODIS (dashed blue), raw Suomi NPP VIIRS (dotted purple), and calibrated harmonized continuity (solid orange).
+          <h2>Sensor comparison</h2>
+          <p>
+            Raw MODIS and raw VIIRS against the harmonized continuity series.
+            Gaps mark months without a valid observation.
           </p>
         </div>
 
-        <button
-          type="button"
-          aria-expanded={showTable}
-          onClick={() => setShowTable((prev) => !prev)}
-          style={{
-            padding: '0.4rem 0.75rem',
-            backgroundColor: showTable ? '#38bdf8' : '#334155',
-            color: showTable ? '#000' : '#f8fafc',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '0.8rem',
-            fontWeight: 600,
-            cursor: 'pointer',
-            minHeight: '44px',
-          }}
-        >
-          {showTable ? 'Hide Table View' : 'Accessible Table'}
-        </button>
+        <div className="chart-actions">
+          <button
+            type="button"
+            aria-expanded={showTable}
+            onClick={() => setShowTable((prev) => !prev)}
+            className={`text-button${showTable ? ' is-active' : ''}`}
+          >
+            {showTable ? 'Hide table' : 'View as table'}
+          </button>
+        </div>
       </div>
 
       <div
         ref={chartContainerRef}
         role="region"
-        aria-label="Comparison line chart of Raw MODIS, Raw VIIRS, and Harmonized series over time"
+        aria-label="Comparison line chart of raw MODIS, raw VIIRS, and harmonized series over time"
         style={{ width: '100%', height: '320px', minHeight: '300px' }}
       />
 
       {!hasData && (
-        <div
-          role="status"
-          style={{
-            textAlign: 'center',
-            padding: '2rem',
-            color: '#94a3b8',
-            fontSize: '0.875rem',
-          }}
-        >
-          No observation data available in the selected range to compare sensors.
+        <div className="chart-empty" role="status">
+          No observation data available in the selected range to compare
+          sensors.
         </div>
       )}
 
       {showTable && (
-        <div
-          style={{
-            marginTop: '0.5rem',
-            overflowX: 'auto',
-            maxHeight: '260px',
-            border: '1px solid #334155',
-            borderRadius: '6px',
-          }}
-        >
+        <div className="chart-table-wrap">
           <table
-            aria-label="Sensor Comparison Data Table"
-            style={{
-              width: '100%',
-              borderCollapse: 'collapse',
-              fontSize: '0.75rem',
-              color: '#f8fafc',
-              textAlign: 'right',
-            }}
+            className="chart-table"
+            aria-label="Sensor comparison data table"
           >
             <thead>
-              <tr style={{ backgroundColor: '#0f172a', borderBottom: '1px solid #334155' }}>
-                <th style={{ padding: '6px', textAlign: 'left' }}>Month</th>
-                <th style={{ padding: '6px', color: '#f97316' }}>Harmonized (MODIS-equiv)</th>
-                <th style={{ padding: '6px', color: '#38bdf8' }}>Raw MODIS</th>
-                <th style={{ padding: '6px', color: '#a855f7' }}>Raw VIIRS</th>
+              <tr>
+                <th>Month</th>
+                <th>Harmonized</th>
+                <th>Raw MODIS</th>
+                <th>Raw VIIRS</th>
               </tr>
             </thead>
             <tbody>
               {months.map((m, idx) => (
-                <tr key={m} style={{ borderBottom: '1px solid #334155' }}>
-                  <td style={{ padding: '6px', textAlign: 'left', fontWeight: 600 }}>{m}</td>
-                  <td style={{ padding: '6px' }}>{formatHotspotValue(harmonizedData[idx] === '-' ? null : harmonizedData[idx])}</td>
-                  <td style={{ padding: '6px' }}>{formatHotspotValue(modisData[idx] === '-' ? null : modisData[idx])}</td>
-                  <td style={{ padding: '6px' }}>{formatHotspotValue(viirsData[idx] === '-' ? null : viirsData[idx])}</td>
+                <tr key={m}>
+                  <td>{m}</td>
+                  <td>
+                    {formatHotspotValue(
+                      harmonizedData[idx] === '-' ? null : harmonizedData[idx],
+                    )}
+                  </td>
+                  <td>
+                    {formatHotspotValue(
+                      modisData[idx] === '-' ? null : modisData[idx],
+                    )}
+                  </td>
+                  <td>
+                    {formatHotspotValue(
+                      viirsData[idx] === '-' ? null : viirsData[idx],
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

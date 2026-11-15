@@ -98,7 +98,7 @@ export function ExportPanel({
       setDownloadSuccess(`Downloaded ${filename} (${rawExportResult.exportedRows.length.toLocaleString()} rows)`);
       setRawModalOpen(false);
       setTimeout(() => setDownloadSuccess(null), 4000);
-    } catch (err) {
+    } catch {
       setRawError('Error generating raw CSV file.');
     }
   };
@@ -111,361 +111,163 @@ export function ExportPanel({
   }).length;
 
   return (
-    <section
-      aria-label="Data Downloads and Export Actions"
-      style={{
-        backgroundColor: '#1e293b',
-        border: '1px solid #334155',
-        borderRadius: '8px',
-        padding: '1.25rem',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem',
-      }}
-    >
-      <div>
-        <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#f8fafc' }}>
-          Data Downloads & Export
-        </h2>
-        <p style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-          Export the active selection as harmonized tabular data or presentation-ready graphics.
-        </p>
+    <section className="chart-panel" aria-label="Data downloads and export actions">
+      <div className="chart-header">
+        <div>
+          <h2>Data downloads</h2>
+          <p>
+            Export the active selection as harmonized tabular data or a
+            presentation-ready calendar image.
+          </p>
+        </div>
       </div>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '1rem',
-        }}
-      >
-        {/* Export 1: Aggregate CSV */}
-        <div
-          style={{
-            backgroundColor: '#0f172a',
-            border: '1px solid #334155',
-            borderRadius: '6px',
-            padding: '1rem',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '0.75rem',
-          }}
-        >
+      <div className="export-grid">
+        <div className="export-card">
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontWeight: 700, fontSize: '0.95rem', color: '#f8fafc' }}>
-                Aggregate CSV
-              </span>
-              <span
-                style={{
-                  fontSize: '0.7rem',
-                  padding: '2px 6px',
-                  borderRadius: '4px',
-                  backgroundColor: '#16a34a',
-                  color: '#fff',
-                  fontWeight: 700,
-                }}
-              >
-                Required
-              </span>
+            <div className="export-card-top">
+              <span className="export-title">Aggregate CSV</span>
+              <span className="export-badge">Required</span>
             </div>
-            <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.25rem' }}>
-              Harmonized cell-month table with MODIS, VIIRS and calibrated counts.
+            <p>
+              Harmonized cell-month table with MODIS, VIIRS and calibrated
+              counts.
             </p>
-            <div style={{ fontSize: '0.75rem', color: '#cbd5e1', marginTop: '0.5rem' }}>
-              Records in selection: <strong>{matchingRowCount} cell-months</strong>
-            </div>
+            <p>
+              {matchingRowCount.toLocaleString()} cell-months in selection.
+            </p>
           </div>
 
           <button
             type="button"
+            className="btn btn-primary"
             onClick={handleDownloadAggregate}
             disabled={matchingRowCount === 0}
-            style={{
-              padding: '0.6rem 1rem',
-              backgroundColor: matchingRowCount > 0 ? '#f97316' : '#475569',
-              color: matchingRowCount > 0 ? '#000' : '#94a3b8',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '0.875rem',
-              fontWeight: 700,
-              cursor: matchingRowCount > 0 ? 'pointer' : 'not-allowed',
-              minHeight: '44px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-            }}
           >
-            <span>📥 Download Aggregate CSV</span>
+            Download aggregate CSV
           </button>
         </div>
 
-        {/* Export 2: Calendar PNG */}
-        <div
-          style={{
-            backgroundColor: '#0f172a',
-            border: '1px solid #334155',
-            borderRadius: '6px',
-            padding: '1rem',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '0.75rem',
-          }}
-        >
+        <div className="export-card">
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontWeight: 700, fontSize: '0.95rem', color: '#f8fafc' }}>
-                Calendar Image (PNG)
-              </span>
-              <span
-                style={{
-                  fontSize: '0.7rem',
-                  padding: '2px 6px',
-                  borderRadius: '4px',
-                  backgroundColor: '#0284c7',
-                  color: '#fff',
-                  fontWeight: 700,
-                }}
-              >
-                Visual
-              </span>
+            <div className="export-card-top">
+              <span className="export-title">Calendar image</span>
+              <span className="export-badge">PNG</span>
             </div>
-            <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.25rem' }}>
-              Export high-resolution PNG snapshot of the burning calendar heatmap.
+            <p>
+              High-resolution snapshot of the burning calendar heatmap.
             </p>
           </div>
 
           <button
             type="button"
+            className="btn btn-secondary"
             onClick={onExportPng}
-            style={{
-              padding: '0.6rem 1rem',
-              backgroundColor: '#38bdf8',
-              color: '#000',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '0.875rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              minHeight: '44px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-            }}
           >
-            <span>🖼️ Download Calendar PNG</span>
+            Download calendar PNG
           </button>
         </div>
 
-        {/* Export 3: Capped Raw Detections CSV */}
-        <div
-          style={{
-            backgroundColor: '#0f172a',
-            border: '1px solid #334155',
-            borderRadius: '6px',
-            padding: '1rem',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '0.75rem',
-          }}
-        >
+        <div className="export-card">
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontWeight: 700, fontSize: '0.95rem', color: '#f8fafc' }}>
-                Raw Detections CSV
-              </span>
-              <span
-                style={{
-                  fontSize: '0.7rem',
-                  padding: '2px 6px',
-                  borderRadius: '4px',
-                  backgroundColor: '#7c3aed',
-                  color: '#fff',
-                  fontWeight: 700,
-                }}
-              >
-                Capped (50k)
-              </span>
+            <div className="export-card-top">
+              <span className="export-title">Raw detections CSV</span>
+              <span className="export-badge">Capped at 50k</span>
             </div>
-            <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.25rem' }}>
-              Quality-filtered FIRMS detections for selected dates/AOI. Capped at 50,000 rows.
+            <p>
+              Quality-filtered FIRMS detections for the selected dates and
+              area.
             </p>
           </div>
 
           <button
             type="button"
+            className="btn btn-secondary"
             onClick={handleOpenRawModal}
-            style={{
-              padding: '0.6rem 1rem',
-              backgroundColor: '#a855f7',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '0.875rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              minHeight: '44px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-            }}
           >
-            <span>🔥 Export Raw Hotspots</span>
+            Export raw hotspots
           </button>
         </div>
       </div>
 
       {downloadSuccess && (
-        <div
-          role="status"
-          style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: 'rgba(34, 197, 94, 0.2)',
-            border: '1px solid #22c55e',
-            borderRadius: '4px',
-            color: '#86efac',
-            fontSize: '0.8rem',
-            textAlign: 'center',
-          }}
-        >
-          ✓ {downloadSuccess}
+        <div className="export-success" role="status">
+          {downloadSuccess}
         </div>
       )}
 
-      {/* Raw Export Modal Dialog */}
       {rawModalOpen && (
         <div
+          className="modal-backdrop"
           role="dialog"
           aria-modal="true"
           aria-labelledby="raw-export-modal-title"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.75)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '1rem',
-            zIndex: 9999,
-          }}
         >
-          <div
-            style={{
-              backgroundColor: '#1e293b',
-              border: '1px solid #475569',
-              borderRadius: '8px',
-              padding: '1.5rem',
-              maxWidth: '520px',
-              width: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 id="raw-export-modal-title" style={{ fontSize: '1.125rem', fontWeight: 700, color: '#f8fafc' }}>
-                Raw Hotspot Detections Export
+          <div className="modal">
+            <div className="modal-header">
+              <h3 id="raw-export-modal-title">
+                Raw hotspot detections export
               </h3>
               <button
                 type="button"
+                className="modal-close"
                 onClick={() => setRawModalOpen(false)}
-                style={{
-                  backgroundColor: 'transparent',
-                  color: '#94a3b8',
-                  border: 'none',
-                  fontSize: '1.25rem',
-                  cursor: 'pointer',
-                  padding: '4px',
-                }}
+                aria-label="Close"
               >
-                ✕
+                &#215;
               </button>
             </div>
 
             {rawLoading ? (
-              <div style={{ textAlign: 'center', padding: '2rem 0', color: '#94a3b8' }}>
-                <div>Fetching and filtering raw detections...</div>
-              </div>
+              <div className="modal-muted">Fetching and filtering raw detections.</div>
             ) : rawError ? (
-              <div style={{ color: '#f87171', padding: '1rem', backgroundColor: 'rgba(239, 68, 68, 0.1)', borderRadius: '6px' }}>
-                {rawError}
-              </div>
+              <div className="modal-error">{rawError}</div>
             ) : rawExportResult ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div className="export-grid">
                 <div>
-                  <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Detections Matched: </span>
-                  <strong style={{ fontSize: '1rem', color: '#f8fafc' }}>
+                  <span className="modal-muted">Detections matched: </span>
+                  <strong>
                     {rawExportResult.totalMatched.toLocaleString()} hotspots
                   </strong>
                 </div>
 
                 {rawExportResult.isCapped && (
-                  <div
-                    role="alert"
-                    style={{
-                      padding: '0.85rem',
-                      backgroundColor: 'rgba(234, 179, 8, 0.15)',
-                      border: '1px solid #eab308',
-                      borderRadius: '6px',
-                      color: '#fef08a',
-                      fontSize: '0.8rem',
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    <strong>Safety Cap Notice:</strong> Your selection matches{' '}
-                    <strong>{rawExportResult.totalMatched.toLocaleString()}</strong> rows, exceeding the browser limit of{' '}
-                    <strong>{MAX_RAW_EXPORT_ROWS.toLocaleString()}</strong> rows. To maintain performance, the export will contain the first{' '}
-                    <strong>{MAX_RAW_EXPORT_ROWS.toLocaleString()}</strong> rows. For complete comprehensive analysis across this large selection, please download the Aggregate CSV instead.
+                  <div className="modal-warning" role="alert">
+                    Your selection matches{' '}
+                    <strong>
+                      {rawExportResult.totalMatched.toLocaleString()}
+                    </strong>{' '}
+                    rows, above the browser limit of{' '}
+                    <strong>{MAX_RAW_EXPORT_ROWS.toLocaleString()}</strong>.
+                    The export will contain the first{' '}
+                    {MAX_RAW_EXPORT_ROWS.toLocaleString()} rows. Use the
+                    aggregate CSV for the full selection.
                   </div>
                 )}
 
                 {rawExportResult.totalMatched === 0 ? (
-                  <p style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
-                    No raw hotspot detections were found matching the selected area and date range.
+                  <p className="modal-muted">
+                    No raw hotspot detections were found matching the selected
+                    area and date range.
                   </p>
                 ) : (
-                  <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+                  <div className="modal-actions">
                     <button
                       type="button"
+                      className="btn btn-primary"
                       onClick={handleDownloadRawCsv}
-                      style={{
-                        flex: 1,
-                        padding: '0.6rem 1rem',
-                        backgroundColor: '#a855f7',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '4px',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        minHeight: '44px',
-                      }}
                     >
                       {rawExportResult.isCapped
-                        ? `Download First ${MAX_RAW_EXPORT_ROWS.toLocaleString()} Rows`
-                        : `Download All ${rawExportResult.totalMatched.toLocaleString()} Rows`}
+                        ? `Download first ${MAX_RAW_EXPORT_ROWS.toLocaleString()} rows`
+                        : `Download all ${rawExportResult.totalMatched.toLocaleString()} rows`}
                     </button>
                     {rawExportResult.isCapped && (
                       <button
                         type="button"
+                        className="btn btn-secondary"
                         onClick={() => {
                           setRawModalOpen(false);
                           handleDownloadAggregate();
-                        }}
-                        style={{
-                          padding: '0.6rem 1rem',
-                          backgroundColor: '#334155',
-                          color: '#f8fafc',
-                          border: 'none',
-                          borderRadius: '4px',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                          minHeight: '44px',
                         }}
                       >
                         Aggregate CSV
