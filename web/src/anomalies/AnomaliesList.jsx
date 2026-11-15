@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { detectAnomalies } from './anomalyDetection.js';
 import {
   SOURCES,
@@ -7,17 +7,8 @@ import {
 } from '../calendar/dataHelpers.js';
 
 /**
- * Unusual Periods (Anomalies) List Component (Domain D - Peter)
- * 
- * Flags months where fire activity deviates substantially from the historical baseline.
- * Clicking or pressing Enter on an item highlights its cell in the Burning Calendar.
- * 
- * Props:
- * - displayedSeries: Active filtered series
- * - fullSeries: Complete historical series for the AOI
- * - source: Sensor source
- * - highlightedMonth: Currently highlighted month in calendar ('YYYY-MM' | null)
- * - onSelectAnomaly: (monthStr) => void
+ * Flags months that depart from the historical baseline.
+ * Selecting an item highlights the matching calendar cell.
  */
 export function AnomaliesList({
   displayedSeries = [],
@@ -69,7 +60,7 @@ export function AnomaliesList({
           {threshold}.
         </div>
       ) : (
-        <div className="anomaly-grid" role="list">
+        <div className="anomaly-grid">
           {anomalies.map((item) => {
             const isSelected = highlightedMonth === item.month;
             const isHigh = item.type === 'high';
@@ -80,7 +71,6 @@ export function AnomaliesList({
                 role="button"
                 tabIndex={0}
                 aria-pressed={isSelected}
-                aria-label={`Flagged ${item.type} period ${item.monthLabel}: ${item.value} hotspots compared to median ${item.median}`}
                 onClick={() => onSelectAnomaly && onSelectAnomaly(item.month)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {

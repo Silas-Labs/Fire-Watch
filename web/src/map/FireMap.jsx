@@ -8,60 +8,40 @@ import eastAfrica from './data/east-africa.geojson?raw'
 import world from './data/world.geojson?raw'
 import { useFireWatch } from '../store/useFireWatch.js'
 import { getCellActivity } from '../store/selection.js'
+import { FIRE_RAMP, getRampColor } from '../theme/colors.js'
 
 const WORLD_VIEW = [
   [-60, -180],
   [85, 180],
 ]
 const COUNTRY_STYLE = {
-  color: '#536577',
+  color: '#9a9f99',
   weight: 1,
-  opacity: 0.8,
-  fillColor: '#1b2936',
+  opacity: 0.9,
+  fillColor: '#f4f1eb',
   fillOpacity: 0,
 }
 
 const WORLD_COUNTRY_STYLE = {
-  color: '#35434d',
+  color: '#c9c4ba',
   weight: 0.55,
   opacity: 0.8,
-  fillColor: '#17232b',
+  fillColor: '#ffffff',
   fillOpacity: 0,
 }
 
 const TANZANIA_STYLE = {
-  color: '#e19a51',
-  weight: 1.8,
+  color: '#b84a1f',
+  weight: 1.6,
   opacity: 1,
-  fillColor: '#344b40',
-  fillOpacity: 0.08,
+  fillColor: '#f3e3d8',
+  fillOpacity: 0.18,
 }
-
-const FIRE_COLORS = [
-  '#ffc766',
-  '#ffad42',
-  '#ff872e',
-  '#f45b25',
-  '#d93622',
-]
 
 function getCountryStyle(feature) {
   const code = feature.properties?.['ISO3166-1-Alpha-3']
 
   return code === 'TZA' ? TANZANIA_STYLE : COUNTRY_STYLE
-}
-
-function getFireColor(value, maximum) {
-  if (value <= 0 || maximum <= 0) return null
-
-  const intensity = value / maximum
-
-  if (intensity <= 0.2) return FIRE_COLORS[0]
-  if (intensity <= 0.4) return FIRE_COLORS[1]
-  if (intensity <= 0.6) return FIRE_COLORS[2]
-  if (intensity <= 0.8) return FIRE_COLORS[3]
-
-  return FIRE_COLORS[4]
 }
 
 function FireMap() {
@@ -124,16 +104,23 @@ const hasActivity = activityCells.some(
       maxBoundsViscosity: 1,
     })
 
-    const satelliteLayer = L.tileLayer(
-  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-  {
-    attribution:
-      'Tiles © Esri — Source: Esri, Vantor, Earthstar Geographics, and the GIS User Community',
-    maxZoom: 19,
-  },
-)
+    const basemap = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+      {
+        attribution: 'Tiles &copy; Esri',
+        maxZoom: 16,
+      },
+    )
 
-satelliteLayer.addTo(map)
+    const basemapLabels = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+      {
+        maxZoom: 16,
+      },
+    )
+
+    basemap.addTo(map)
+    basemapLabels.addTo(map)
 
     mapRef.current = map
 
@@ -185,6 +172,20 @@ L.geoJSON(JSON.parse(world), {
     }
   }, [])
 
+  // Keep Leaflet fitted to the fixed panel as it resizes.
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container || typeof ResizeObserver === 'undefined') return
+
+    const observer = new ResizeObserver(() => {
+      mapRef.current?.invalidateSize({ animate: false })
+    })
+
+    observer.observe(container)
+
+    return () => observer.disconnect()
+  }, [])
+
   // Render the fire activity grid.
   useEffect(() => {
     const map = mapRef.current
@@ -203,9 +204,9 @@ L.geoJSON(JSON.parse(world), {
     const activityLayer = L.layerGroup()
 
     for (const cell of activityCells) {
-      const color = getFireColor(cell.activity, maximum)
+      const color = getRampColor(cell.activity, maximum)
 
-      if (!color) continue
+      if (cell.activity <= 0) continue
 
       const bounds = [
         [cell.lat, cell.lon],
@@ -217,11 +218,11 @@ L.geoJSON(JSON.parse(world), {
 
       const rectangle = L.rectangle(bounds, {
         stroke: true,
-        color: '#f8b45b',
-        weight: 0.45,
-        opacity: 0.45,
+        color: '#ffffff',
+        weight: 0.5,
+        opacity: 0.7,
         fillColor: color,
-        fillOpacity: 0.68,
+        fillOpacity: 0.76,
         interactive: true,
       })
 
@@ -283,19 +284,19 @@ L.geoJSON(JSON.parse(world), {
         aria-label="Relative fire activity legend"
       >
         <div className="legend-heading">
-          <span className="legend-indicator" />
           <strong>Fire activity</strong>
         </div>
 
-        <p>Relative intensity</p>
+        <p>Relative to the selected period</p>
 
         <div className="legend-scale">
-          {FIRE_COLORS.map((color, index) => (
+          {FIRE_RAMP.map((color, index) => (
             <span
               key={color}
               className="legend-swatch"
+              role="img"
               style={{ backgroundColor: color }}
-              aria-label={`Intensity level ${index + 1}`}
+              aria-label={`Intensity level ${index + 1} of ${FIRE_RAMP.length}`}
             />
           ))}
         </div>

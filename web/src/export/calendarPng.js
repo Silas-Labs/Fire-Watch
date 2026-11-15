@@ -58,17 +58,17 @@ export async function createPresentationCalendarPng(chartDataUrl, context = {}) 
         return;
       }
 
-      // Background: Solid dark theme
-      ctx.fillStyle = '#0f172a';
+      // Background: solid light theme
+      ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Header Banner
-      ctx.fillStyle = '#f8fafc';
+      ctx.fillStyle = '#1f2320';
       ctx.font = 'bold 20px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
       ctx.fillText('FireWatch Tanzania — Burning Activity Calendar', padding, padding + 20);
 
       // Context Subtitle
-      ctx.fillStyle = '#94a3b8';
+      ctx.fillStyle = '#5f6864';
       ctx.font = '13px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
       const aoiText = context.aoiName ? `Area: ${context.aoiName}  |  ` : '';
       const rangeText = context.dateRange ? `Period: ${context.dateRange}  |  ` : '';
@@ -79,7 +79,7 @@ export async function createPresentationCalendarPng(chartDataUrl, context = {}) 
       ctx.drawImage(img, padding, headerHeight);
 
       // Footer Attribution
-      ctx.fillStyle = '#64748b';
+      ctx.fillStyle = '#5f6864';
       ctx.font = '11px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
       ctx.fillText(
         'NASA Space Apps Challenge 2026 — Team Tazama  |  Data: NASA FIRMS (MODIS & VIIRS)',

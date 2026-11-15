@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
   SOURCES,
-  SOURCE_METADATA,
   isValidMonth,
   generateMonthRange,
   getValueForSource,

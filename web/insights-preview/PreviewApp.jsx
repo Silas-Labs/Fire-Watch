@@ -7,11 +7,8 @@ import {
 } from '../src/calendar/dataHelpers.js';
 import { CalendarHeatmap } from '../src/calendar/CalendarHeatmap.jsx';
 import { ComparisonChart } from '../src/charts/ComparisonChart.jsx';
-import { KpiCards } from '../src/kpis/KpiCards.jsx';
 import { AnomaliesList } from '../src/anomalies/AnomaliesList.jsx';
-import { ExportPanel } from '../src/export/ExportPanel.jsx';
-import { createPresentationCalendarPng, downloadDataUrl } from '../src/export/calendarPng.js';
-import { SAMPLE_AOIS, SYNTHETIC_MONTHLY_SERIES, SYNTHETIC_CELL_ROWS } from './fixtures.js';
+import { SAMPLE_AOIS, SYNTHETIC_MONTHLY_SERIES } from './fixtures.js';
 
 export function PreviewApp() {
   const calendarRef = useRef(null);
@@ -22,23 +19,6 @@ export function PreviewApp() {
   const [simulateLoading, setSimulateLoading] = useState(false);
   const [simulateEmpty, setSimulateEmpty] = useState(false);
   const [highlightedMonth, setHighlightedMonth] = useState(null);
-
-  const handleExportPng = async () => {
-    if (!calendarRef.current) return;
-    const rawDataUrl = calendarRef.current.getDataUrl();
-    if (!rawDataUrl) {
-      alert('Calendar has no active data to export.');
-      return;
-    }
-    const currentMeta = SOURCE_METADATA[source];
-    const compositedUrl = await createPresentationCalendarPng(rawDataUrl, {
-      aoiName: currentAoi.name,
-      dateRange: `${startMonth} to ${endMonth}`,
-      sourceLabel: currentMeta.label,
-      unit: currentMeta.unit,
-    });
-    downloadDataUrl(compositedUrl, 'firewatch_calendar.png');
-  };
 
   // Active AOI metadata
   const currentAoi = useMemo(() => {
@@ -348,13 +328,6 @@ export function PreviewApp() {
             </div>
           </div>
 
-          {/* Headline KPIs */}
-          <KpiCards
-            displayedSeries={displayedSeries}
-            fullSeries={SYNTHETIC_MONTHLY_SERIES}
-            source={source}
-          />
-
           {/* Calendar Heatmap */}
           <CalendarHeatmap
             ref={calendarRef}
@@ -382,14 +355,6 @@ export function PreviewApp() {
             }}
           />
 
-          {/* Data Export Panel */}
-          <ExportPanel
-            cellRows={SYNTHETIC_CELL_ROWS}
-            startMonth={startMonth}
-            endMonth={endMonth}
-            bbox={currentAoi.bbox}
-            onExportPng={handleExportPng}
-          />
         </main>
       )}
     </div>
