@@ -239,6 +239,13 @@ export function ComparisonChart({ series = [] }) {
     };
   }, []);
 
+  // Restore the chart size after returning from the table view.
+  useEffect(() => {
+    if (!showTable) {
+      chartInstanceRef.current?.resize();
+    }
+  }, [showTable]);
+
   return (
     <div className="chart-panel">
       <div className="chart-header">
@@ -264,6 +271,7 @@ export function ComparisonChart({ series = [] }) {
 
       <div
         ref={chartContainerRef}
+        hidden={showTable}
         role="region"
         aria-label="Comparison line chart of raw MODIS, raw VIIRS, and harmonized series over time"
         style={{ width: '100%', height: '320px', minHeight: '300px' }}

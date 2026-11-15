@@ -260,6 +260,13 @@ export const CalendarHeatmap = forwardRef(function CalendarHeatmap(
     };
   }, []);
 
+  // Restore the chart size after returning from the table view.
+  useEffect(() => {
+    if (!showTable) {
+      chartInstanceRef.current?.resize();
+    }
+  }, [showTable]);
+
   return (
     <div className="chart-panel">
       <div className="chart-header">
@@ -284,6 +291,7 @@ export const CalendarHeatmap = forwardRef(function CalendarHeatmap(
 
       <div
         ref={chartContainerRef}
+        hidden={showTable}
         role="region"
         aria-label={`Interactive burning calendar heatmap showing ${activeMeta.label}`}
         style={{
@@ -293,9 +301,11 @@ export const CalendarHeatmap = forwardRef(function CalendarHeatmap(
         }}
       />
 
-      <p className="chart-footnote">
-        Blank cells mark months without an observation.
-      </p>
+      {!showTable && (
+        <p className="chart-footnote">
+          Blank cells mark months without an observation.
+        </p>
+      )}
 
       {!hasData && (
         <div className="chart-empty" role="status">
