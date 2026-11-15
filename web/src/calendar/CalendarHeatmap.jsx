@@ -267,6 +267,20 @@ export const CalendarHeatmap = forwardRef(function CalendarHeatmap(
     }
   }, [showTable]);
 
+  // Keep the heatmap fitted to the fixed panel as it resizes.
+  useEffect(() => {
+    const container = chartContainerRef.current;
+    if (!container || typeof ResizeObserver === 'undefined') return;
+
+    const observer = new ResizeObserver(() => {
+      chartInstanceRef.current?.resize();
+    });
+
+    observer.observe(container);
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="chart-panel">
       <div className="chart-header">
@@ -292,13 +306,9 @@ export const CalendarHeatmap = forwardRef(function CalendarHeatmap(
       <div
         ref={chartContainerRef}
         hidden={showTable}
+        className="calendar-chart"
         role="region"
         aria-label={`Interactive burning calendar heatmap showing ${activeMeta.label}`}
-        style={{
-          width: '100%',
-          height: `${Math.max(260, years.length * 22 + 120)}px`,
-          minHeight: '260px',
-        }}
       />
 
       {!showTable && (

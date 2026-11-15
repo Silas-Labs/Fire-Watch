@@ -153,11 +153,41 @@ function App() {
           </p>
         </div>
 
-        <DownloadMenu
-          onDownloadCsv={handleExportCsv}
-          onDownloadPng={handleExportPng}
-          csvDisabled={cellRows.length === 0}
-        />
+        {dataset && !loading && !error && (
+          <div className="header-actions">
+            <div
+              className="segmented"
+              role="group"
+              aria-label="Observation source"
+            >
+              {Object.values(SOURCES).map((source) => (
+                <button
+                  key={source}
+                  type="button"
+                  className={selection.source === source ? 'is-active' : ''}
+                  aria-pressed={selection.source === source}
+                  onClick={() => setSource(source)}
+                >
+                  {SOURCE_METADATA[source].label}
+                </button>
+              ))}
+            </div>
+
+            <MonthRangeControl
+              months={months}
+              start={selection.dateRange.start}
+              end={selection.dateRange.end}
+              onChange={handleRangeChange}
+              source={selection.source}
+            />
+
+            <DownloadMenu
+              onDownloadCsv={handleExportCsv}
+              onDownloadPng={handleExportPng}
+              csvDisabled={cellRows.length === 0}
+            />
+          </div>
+        )}
       </header>
 
       {error && (
@@ -186,34 +216,6 @@ function App() {
 
       {dataset && !loading && !error && (
         <div className="main-column">
-          <div className="filter-bar">
-            <div
-              className="segmented"
-              role="group"
-              aria-label="Observation source"
-            >
-              {Object.values(SOURCES).map((source) => (
-                <button
-                  key={source}
-                  type="button"
-                  className={selection.source === source ? 'is-active' : ''}
-                  aria-pressed={selection.source === source}
-                  onClick={() => setSource(source)}
-                >
-                  {SOURCE_METADATA[source].label}
-                </button>
-              ))}
-            </div>
-
-            <MonthRangeControl
-              months={months}
-              start={selection.dateRange.start}
-              end={selection.dateRange.end}
-              onChange={handleRangeChange}
-              source={selection.source}
-            />
-          </div>
-
           <div className="dashboard-grid">
             <section className="panel map-panel">
               <div className="panel-heading panel-heading-row">

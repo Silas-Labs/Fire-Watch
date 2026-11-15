@@ -172,6 +172,20 @@ L.geoJSON(JSON.parse(world), {
     }
   }, [])
 
+  // Keep Leaflet fitted to the fixed panel as it resizes.
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container || typeof ResizeObserver === 'undefined') return
+
+    const observer = new ResizeObserver(() => {
+      mapRef.current?.invalidateSize({ animate: false })
+    })
+
+    observer.observe(container)
+
+    return () => observer.disconnect()
+  }, [])
+
   // Render the fire activity grid.
   useEffect(() => {
     const map = mapRef.current
