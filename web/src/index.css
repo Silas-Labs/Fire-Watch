@@ -218,7 +218,7 @@ p {
 .month-picker {
   position: absolute;
   top: calc(100% + 8px);
-  left: 0;
+  right: 0;
   z-index: 1000;
   width: min(330px, calc(100vw - 32px));
   padding: 14px;
